@@ -1,0 +1,15 @@
+Changes
+lib/App/transmish/Client.pm
+lib/App/transmish/Command.pm
+lib/App/transmish/Config.pm
+lib/App/transmish/Out.pm
+lib/App/transmish/Out/Client.pm
+lib/App/transmish/Out/Torrent.pm
+lib/App/transmish/Utils.pm
+Makefile.PL
+MANIFEST			This list of files
+MANIFEST.SKIP
+MYMETA.yml
+README
+t/01-distribution.t
+transmish

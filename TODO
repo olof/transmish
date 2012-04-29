@@ -1,0 +1,6 @@
+A lot of work left to do...
+ * Better test coverage
+ * Interface for configuring limits (global/per torrent/etc)
+ * Display tracker information (new command "tracker"?)
+ * Better usage of readline (current status: ugly hack)
+ * Help for aliased commands

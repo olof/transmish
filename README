@@ -1,0 +1,54 @@
+NAME
+    transmish, a transmission shell interface
+
+DESCRIPTION
+    This is a simple shell interface for the Transmission bittorrent client.
+
+OPTIONS
+     --config -c <file>  specify configuration file to use (default ~/.transmishrc)
+     --debug -d          increase debug level (can be used multiple times)
+     --help -h           shows a listing of the possible flags
+
+COMMANDS
+  list
+    List all torrents.
+
+  active
+    List all active torrents; that is torrents which Transmission claims to
+    have connected peers with.
+
+  info
+    Show info for a specific torrent. Takes the id of the torrent as
+    argument.
+
+  files
+    List files for a given torrent. Takes the id of the torrent as argument.
+
+  add
+    Add torrent, either as a path to a local file or as an URI.
+
+  rm
+    Remove torrent. Takes the id of the torrent as argument. There will be
+    no confirmation dialog so make sure not to do any typos (this is subject
+    to change).
+
+  quit
+    Quit transmish. "q" is an alias for quit.
+
+  help
+    Without argument, prints a list of available commands. Given an
+    argument, shows help on a specific command.
+
+CONTRIBUTING AND REPORTING BUGS
+    The main repository is located on <https://github.com/olof/transmish>.
+    Feel free to open issues there or do pull requests. If you don't do
+    github, you can send me URL to git repositories elsewhere or send me
+    patches per mail.
+
+COPYRIGHT
+    Copyright 2012, Olof Johansson <olof@ethup.se>
+
+    Copying and distribution of this file, with or without modification, are
+    permitted in any medium without royalty provided the copyright notice
+    are preserved. This file is offered as-is, without any warranty.
+

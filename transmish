@@ -1,0 +1,281 @@
+#!/usr/bin/perl
+# Copyright 2011, Olof Johansson <olof@ethup.se>
+#
+# Copying and distribution of this file, with or without
+# modification, are permitted in any medium without royalty
+# provided the copyright notice are preserved. This file is
+# offered as-is, without any warranty.
+
+use warnings FATAL => 'all';
+use strict;
+use feature qw/say/;
+
+our $APP = 'transmish';
+our $VERSION = 0.1;
+
+use App::transmish::Out;
+use App::transmish::Out::Client;
+use App::transmish::Out::Torrent;
+use App::transmish::Command;
+use App::transmish::Client;
+use App::transmish::Utils;
+
+use Getopt::Long qw/:config gnu_getopt/;
+use Term::ReadLine;
+use MIME::Base64;
+use Pod::Usage;
+
+my $debug = 3;
+my $term;
+
+cmd list => sub {
+	my $client = client or return;
+
+	my @torrents = $client->read_torrents or do {
+		error $client->error;
+		return;
+	};
+
+	App::transmish::Out::Torrent::summary($_) for @torrents;
+	App::transmish::Out::Client::summary($client);
+};
+
+cmd active => sub {
+	my $client = client or return;
+
+	my @torrents = $client->read_torrents or do {
+		error $client->error;
+		return;
+	};
+
+	App::transmish::Out::Torrent::summary($_) for grep {
+		$_->peers_connected > 0
+	} @torrents;
+	App::transmish::Out::Client::summary($client);
+};
+
+cmd add => sub {
+	my $client = client or return;
+	my $file = shift;
+	my $torrent;
+	
+	if(-e $file) {
+		$torrent = read_file($file);
+	} elsif(_is_uri($file)) {
+		$torrent = http_file($file);
+	} else {
+		error "No such file: '$file'";
+		return 1;
+	}
+
+	unless($torrent) {
+		# FIXME: This catches cases where i.e. the file is 0
+		# sized. But,it also catches cases caught in the
+		# _read_torrent_* subs, which already gives a better
+		# error message.
+		error "Torrent not possible to load";
+	}
+
+	# https://rt.cpan.org/Ticket/Display.html?id=76859
+	$torrent = base64_encode($torrent) if
+		$Transmission::Client::VERSION <= 0.0602;
+
+	$client->add(metainfo => $torrent) or error $client->error;
+};
+
+cmd rm => sub {
+	my $client = client or return;
+	my $index = shift or do {
+		error "No id given";
+		return;
+	};
+
+	my $delete = 0;
+
+	# FIXME: do getopt on commands
+	if($index eq '-d') {
+		$index = shift;
+		$delete = 1;
+	}
+
+	$client->remove(
+		ids => [$index],
+		delete_local_data => $delete,
+	) or error $client->error;
+};
+
+cmd info => sub {
+	my $client = client or return;
+	my $index = shift or do {
+		error "No id given";
+		return;
+	};
+
+	my ($torrent) = $client->read_torrents(ids => [$index]);
+	unless($torrent) {
+		error "No torrent with id $index";
+		return;
+	}
+	$torrent->read_all;
+	App::transmish::Out::Torrent::status($torrent);
+
+	return 1;
+};
+
+cmd files => sub {
+	my $client = client or return;
+	my $index = shift or do {
+		error "No id given";
+		return;
+	};
+
+	my ($torrent) = $client->get_torrents(ids => [$index]);
+	unless($torrent) {
+		error "No torrent with id $index";
+		return;
+	}
+	$torrent->read_all;
+
+	App::transmish::Out::Torrent::files($torrent);
+	return 1;
+};
+
+cmd help => sub {
+	my $cmd = shift;
+	my %commands = map { $_ => 1 } cmds;
+
+	if($cmd) {
+		if($commands{$cmd}) {
+			pod2usage(
+				-verbose => 99,
+				-sections => ["COMMANDS/$cmd"],
+				-exitval => 'NOEXIT',
+			);
+		} else {
+			error "No such commands: '$cmd'";
+		}
+	} else {
+		say "Available commands:";
+		say "  $_" for keys %commands;
+		say "Do 'help <command>' for more info";
+	}
+};
+
+cmd quit => sub { exit 0 };
+alias q => 'quit';
+
+sub gen_matches {
+	my($text, $buf, $start, $end) = @_;
+
+	if(substr($buf, 0, $start) =~ /^\s*$/) {
+		my @ret = grep { /^$buf/ } ('', cmds);
+		#unshift @ret, '' if @ret > 1;
+		return @ret;
+	} else {
+		return ();
+	}
+}
+
+sub help {
+	pod2usage(
+		-verbose => 99,
+		-sections => [qw/NAME OPTIONS/],
+	);
+}
+
+# FIXME: do getopt
+my $opts = {
+	help => sub { help() },
+	verbose => 0,
+	config => "$ENV{HOME}/.transmishrc",
+};
+GetOptions($opts,
+	'help|h',
+	'verbose|v+',
+	'config|c',
+) or exit 1;
+
+App::transmish::Out::dbglvl($opts->{verbose});
+App::transmish::Config::load($opts->{config});
+$term = Term::ReadLine->new('transmish');
+
+my $attr = $term->Attribs;
+$attr->{attempted_completion_function} = \&gen_matches;
+my $out = $term->OUT // \*STDOUT;
+
+while(defined (my $row = $term->readline('> '))) {
+	next unless $row =~ /\S/;
+	$term->addhistory($row);
+
+	run split /\s+/, $row;
+}
+
+=head1 NAME
+
+transmish, a transmission shell interface
+
+=head1 DESCRIPTION
+
+This is a simple shell interface for the Transmission bittorrent
+client.
+
+=head1 OPTIONS
+
+ --config -c <file>  specify configuration file to use (default ~/.transmishrc)
+ --debug -d          increase debug level (can be used multiple times)
+ --help -h           shows a listing of the possible flags
+
+=head1 COMMANDS
+
+=head2 list
+
+List all torrents.
+
+=head2 active
+
+List all active torrents; that is torrents which Transmission
+claims to have connected peers with.
+
+=head2 info
+
+Show info for a specific torrent. Takes the id of the torrent
+as argument.
+
+=head2 files
+
+List files for a given torrent. Takes the id of the torrent as
+argument.
+
+=head2 add
+
+Add torrent, either as a path to a local file or as an URI.
+
+=head2 rm
+
+Remove torrent. Takes the id of the torrent as argument. There
+will be no confirmation dialog so make sure not to do any typos
+(this is subject to change).
+
+=head2 quit
+
+Quit transmish. "q" is an alias for quit.
+
+=head2 help
+
+Without argument, prints a list of available commands. Given an
+argument, shows help on a specific command.
+
+=head1 CONTRIBUTING AND REPORTING BUGS
+
+The main repository is located on L<https://github.com/olof/transmish>.
+Feel free to open issues there or do pull requests. If you don't do
+github, you can send me URL to git repositories elsewhere or send me
+patches per mail.
+
+=head1 COPYRIGHT
+
+Copyright 2012, Olof Johansson <olof@ethup.se>
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice are preserved. This file is offered as-is, without any warranty.
