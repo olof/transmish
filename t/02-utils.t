@@ -4,7 +4,10 @@ use strict;
 
 use Test::More;
 use App::transmish::Utils 
-	qw/rate size date bool percentage is_uri read_file http_file/
+	qw/
+		rate size date bool percentage
+		is_http_uri read_file http_file
+	/
 ;
 
 my @tests = (
