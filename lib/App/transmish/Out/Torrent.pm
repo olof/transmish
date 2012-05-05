@@ -77,8 +77,8 @@ sub status {
 		['---'],
 		['Added at', date($torrent->added_date)],
 		['Completed at', date($torrent->done_date), bool($done)],
-		['ETA', $torrent->eta, bool(!$done)],
-		['Left', $torrent->left_until_done, bool(!$done)],
+		['ETA', date(time() + $torrent->eta), bool(!$done)],
+		['Left', size($torrent->left_until_done), bool(!$done)],
 	);
 
 	my $t = Text::ASCIITable->new({headingText => $torrent->name});
