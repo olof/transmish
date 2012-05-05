@@ -26,7 +26,7 @@ use LWP::UserAgent;
 
 our @ISA = 'Exporter';
 our @EXPORT_OK = qw/
-	rate size date bool percentage is_http_uri read_file http_file
+	rate size date duration bool percentage is_http_uri read_file http_file
 /;
 
 =head1 SUBROUTINES
@@ -74,6 +74,58 @@ specified by ISO 8601. (YYYY-MM-DD HH:MM:SS).
 sub date {
 	my $epoch = shift;
 	return strftime '%Y-%m-%d %H:%M:%S', localtime $epoch;
+}
+
+=head2 duration
+
+Convert seconds to a human readable duration string. Only the
+two most significant elemnts are returned. I.e:
+
+ duration(1)     # -> 1 sec
+ duration(60)    # -> 1 min 0 sec
+ duration(3666)  # -> 1 hour 1 min
+ duration(91111) # -> 1 day 1 hour
+
+=cut
+
+sub duration {
+	my $sec = shift;
+	my $str;
+	my $elm = 0;
+
+	($str, $elm, $sec) = _duration_element($str, $sec, 'day', $elm);
+	($str, $elm, $sec) = _duration_element($str, $sec, 'hour', $elm);
+	($str, $elm, $sec) = _duration_element($str, $sec, 'minute', $elm);
+	($str, $elm, $sec) = _duration_element($str, $sec, 'second', $elm);
+	return "0 seconds" if $elm == 0;
+	return $str;
+}
+
+sub _duration_element {
+	my ($str, $sec, $unit, $elm) = @_;
+
+	my %timemap = (
+		'day' => 86400,
+		'hour' => 3600,
+		'minute' => 60,
+		'second' => 1,
+	);
+	my $mod = $timemap{$unit};
+	die "Invalid unit: $unit" unless $mod;
+
+	if($elm < 2 and $sec >= $mod) {
+		$str .= ' ' if $elm == 1;
+		$str .= sprintf '%d %s',
+			$sec/$mod, $unit . (int($sec/$mod)>1 ? 's' : '');
+		$sec %= $mod;
+
+		++$elm;
+	} elsif($elm == 1) {
+		$str .= sprintf ' %d %s', 0, $unit . 's';
+		++$elm;
+	}
+
+	return ($str, $elm, $sec);
 }
 
 =head2 bool

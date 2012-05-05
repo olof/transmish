@@ -18,7 +18,7 @@ use warnings FATAL => 'all';
 use strict;
 use feature qw/say/;
 
-use App::transmish::Utils qw/percentage rate size date bool/;
+use App::transmish::Utils qw/percentage rate size date duration bool/;
 use Text::ASCIITable;
 
 =head1 SUBROUTINES
@@ -77,7 +77,9 @@ sub status {
 		['---'],
 		['Added at', date($torrent->added_date)],
 		['Completed at', date($torrent->done_date), bool($done)],
-		['ETA', date(time() + $torrent->eta), bool(!$done)],
+		['ETA', sprintf("%s (in %s)",
+			date(time() + $torrent->eta), duration($torrent->eta)
+		), bool(!$done)],
 		['Left', size($torrent->left_until_done), bool(!$done)],
 	);
 
