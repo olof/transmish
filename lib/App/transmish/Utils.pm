@@ -25,7 +25,9 @@ use Regexp::Common qw/URI/;
 use LWP::UserAgent;
 
 our @ISA = 'Exporter';
-our @EXPORT_OK = qw/rate size date bool percentage is_uri read_file http_file/;
+our @EXPORT_OK = qw/
+	rate size date bool percentage is_http_uri read_file http_file
+/;
 
 =head1 SUBROUTINES
 
