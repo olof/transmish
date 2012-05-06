@@ -1,0 +1,4 @@
+# This file should be copied to ~/.transmishrc
+url = http://localhost:9091/transmission/rpc
+username = username
+password = password
