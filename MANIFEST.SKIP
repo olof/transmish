@@ -1,4 +1,5 @@
 ^blib/
+^cover_db/
 ^local/
 ^\.git/
 ^t/data/
