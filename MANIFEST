@@ -1,3 +1,4 @@
+.gitignore
 Changes
 lib/App/transmish/Client.pm
 lib/App/transmish/Command.pm
@@ -12,4 +13,13 @@ MANIFEST.SKIP
 MYMETA.yml
 README
 t/01-distribution.t
+t/02-client.t
+t/02-command.t
+t/02-config.t
+t/02-out-client.t
+t/02-out-torrent.t
+t/02-out.t
+t/02-utils.t
+TODO
 transmish
+transmishrc
