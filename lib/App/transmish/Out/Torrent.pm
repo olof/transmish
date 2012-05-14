@@ -14,6 +14,10 @@ App::transmish::Out::Torrent - output torrent related information
 package App::transmish::Out::Torrent;
 our $VERSION = 0.1;
 
+require Exporter;
+our @ISA = 'Exporter';
+our @EXPORT_OK = 'summary';
+
 use warnings FATAL => 'all';
 use strict;
 use feature qw/say/;
