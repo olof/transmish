@@ -10,10 +10,8 @@ WriteMakefile(
 	PREREQ_PM => {
 		'Config::Tiny' => 0,
 		'LWP::UserAgent' => 0,
-		'Regexp::Common' => 0,
-		'Regexp::Common::URI' => 0,
 		'Text::ASCIITable' => 0,
-		'Transmission::Client' => 0,
+		'Transmission::Client' => 0.0603,
 	},
 );
 

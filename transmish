@@ -18,7 +18,7 @@ use App::transmish::Out::Client;
 use App::transmish::Out::Torrent;
 use App::transmish::Command;
 use App::transmish::Client;
-use App::transmish::Utils qw/read_file is_http_uri http_file/;
+use App::transmish::Utils qw/read_file/;
 
 use Getopt::Long qw/:config gnu_getopt/;
 use Term::ReadLine;
@@ -57,30 +57,12 @@ cmd active => sub {
 cmd add => sub {
 	my $client = client or return;
 	my $file = shift;
-	my $torrent;
-	
-	if(-e $file) {
-		$torrent = read_file($file);
-	} elsif(is_http_uri($file)) {
-		$torrent = http_file($file);
-	} else {
-		error "No such file: '$file'";
-		return 1;
-	}
 
-	unless($torrent) {
-		# FIXME: This catches cases where i.e. the file is 0
-		# sized. But,it also catches cases caught in the
-		# _read_torrent_* subs, which already gives a better
-		# error message.
-		error "Torrent not possible to load";
-	}
+	my %add_args;
+	$add_args{metainfo} = read_file($file) if -e $file;
+	$add_args{filename} = $file unless $add_args{metainfo};
 
-	# https://rt.cpan.org/Ticket/Display.html?id=76859
-	$torrent = base64_encode($torrent) if
-		$Transmission::Client::VERSION <= 0.0602;
-
-	$client->add(metainfo => $torrent) or error $client->error;
+	$client->add(%add_args) or error $client->error;
 };
 
 cmd rm => sub {

@@ -21,7 +21,6 @@ require Exporter;
 
 use App::transmish::Out;
 use POSIX qw/strftime/;
-use Regexp::Common qw/URI/;
 use LWP::UserAgent;
 
 our @ISA = 'Exporter';
@@ -152,18 +151,6 @@ sub percentage {
 	return sprintf "%.1f%%", $p*100;
 }
 
-=head2 is_http_uri
-
-Determine if the string given as argument is a HTTP or HTTPS
-URI.
-
-=cut
-
-sub is_http_uri {
-	my $_ = shift;
-	return m#^$RE{URI}{HTTP}{-scheme => qr/https?/}$#;
-}
-
 =head2 read_file
 
 Read the complete contents of the file, given as argument,
@@ -184,30 +171,6 @@ sub read_file {
 	close $fh;
 
 	return $torrent;
-}
-
-=head2 http_file
-
-Download the file specified by the URL given as argument and
-return in to the caller. This subroutine respects proxy related
-environmental variables. The timeout is set to 10 seconds. If
-it fails, it will print an error message and return undef.
-
-=cut
-
-sub http_file {
-	my $uri = shift;
-	my $ua = LWP::UserAgent->new;
-	$ua->timeout(10);
-	$ua->env_proxy;
-	my $r = $ua->get($uri);
-
-	unless($r->is_success) {
-		error "Could not get file located at $uri: ", $r->status_line;
-		return
-	}
-	
-	return $r->decoded_content
 }
 
 =head1 COPYRIGHT
