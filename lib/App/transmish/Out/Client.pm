@@ -14,6 +14,10 @@ App::transmish::Out::Client - output client related information
 package App::transmish::Out::Client;
 our $VERSION = 0.1;
 
+require Exporter;
+our @ISA = 'Exporter';
+our @EXPORT_OK = qw/summary/;
+
 use warnings FATAL => 'all';
 use strict;
 use feature qw/say/;
