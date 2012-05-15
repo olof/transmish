@@ -11,9 +11,9 @@ BEGIN {
 	use_ok('App::transmish::Out::Torrent', qw/summary/);
 };
 
-my $client;
+my $torrent;
 
-$client = Transmission::Torrent->_create(
+$torrent = Transmission::Torrent->_create(
 	id => 1,
 	name => 'Torrent name',
 
@@ -23,7 +23,7 @@ $client = Transmission::Torrent->_create(
 	percent_done => 1,
 );
 
-stdout_is(sub { summary($client) }, 
+stdout_is(sub { summary($torrent) },
 	<<EOF
   1: Torrent name
       [100.0%] [down: 0.00B/s] [up: 0.00B/s] [uploaded: 0.00B]
@@ -31,7 +31,7 @@ EOF
 	, 'inactive torrent should be as expected'
 );
 
-$client = Transmission::Torrent->_create(
+$torrent = Transmission::Torrent->_create(
 	id => 20,
 	name => 'Another torrent',
 
@@ -41,13 +41,11 @@ $client = Transmission::Torrent->_create(
 	percent_done => 0.5,
 );
 
-stdout_is(sub { summary($client) }, 
+stdout_is(sub { summary($torrent) },
 	<<EOF
  20: Another torrent
       [50.0%] [down: 1.00MiB/s] [up: 1.00MiB/s] [uploaded: 1.00MiB]
 EOF
 	, 'inactive torrent should be as expected'
 );
-
-
 
