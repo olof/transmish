@@ -11,6 +11,7 @@ WriteMakefile(
 		'Config::Tiny' => 0,
 		'LWP::UserAgent' => 0,
 		'Text::ASCIITable' => 0,
+		'Time::Duration' => 0,
 		'Transmission::Client' => 0.0603,
 	},
 );

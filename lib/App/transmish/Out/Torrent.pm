@@ -22,8 +22,9 @@ use warnings FATAL => 'all';
 use strict;
 use feature qw/say/;
 
-use App::transmish::Utils qw/percentage rate size date duration bool/;
+use App::transmish::Utils qw/percentage rate size date bool/;
 use Text::ASCIITable;
+use Time::Duration;
 
 =head1 SUBROUTINES
 
