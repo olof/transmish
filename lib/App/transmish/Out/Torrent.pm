@@ -121,8 +121,8 @@ sub files {
 	printf "%-3s | %6s | %-3s | %s (%s)\n", 'id', '%', 'on', 'name', 'size';
 	say '-'x70;
 	for my $file (sort {$a->name cmp $b->name} @{$torrent->files}) {
-		_file_print $file->id, $file->name, $file->length,
-		            $file->bytes_completed, $file->wanted;
+		_file_print($file->id, $file->name, $file->length,
+		            $file->bytes_completed, $file->wanted);
 	}
 	say '-'x70;
 }
@@ -130,9 +130,9 @@ sub files {
 sub _file_print {
 	my($id, $file, $size, $done, $want) = @_;
 	printf "%-3d | %s | [%s] | %s (%s)\n",
-		$id, _percentage($done/$size),
+		$id, percentage($done/$size),
 	        $want ? 'X' : ' ',
-		$file, _size($size);
+		$file, size($size);
 }
 
 =head1 COPYRIGHT

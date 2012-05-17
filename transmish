@@ -111,7 +111,7 @@ cmd files => sub {
 		return;
 	};
 
-	my ($torrent) = $client->get_torrents(ids => [$index]);
+	my ($torrent) = $client->read_torrents(ids => [$index]);
 	unless($torrent) {
 		error "No torrent with id $index";
 		return;
