@@ -1,6 +1,31 @@
 A lot of work left to do...
  * Better test coverage
- * Interface for configuring limits (global/per torrent/etc)
- * Display tracker information (new command "tracker"?)
+ * Interface for Transmission::Session things
  * Better usage of readline (current status: ugly hack)
  * Help for aliased commands
+
+Redesign torrent-view
+=====================
+> torrent 1
+<this would be the same as id 1 is today>
+
+> torrent 1 files
+<this would be the same as files 1 is today>
+
+> torrent 1 files dir/foo.rar <on|off>
+<mark/unmark for download>
+
+> torrent 1 files dir/*.rar <on|off>
+<mark/unmark all .rar files for download>
+
+> torrent 1 trackers
+<display trackers>
+
+> torrent 1 set
+<list all available settings, limits etc>
+
+> torrent 1 set download_dir
+<list the current value of download_dir>
+
+> torrent 1 set download_dir /tmp/
+<set download_dir to /tmp for torrent 1>
