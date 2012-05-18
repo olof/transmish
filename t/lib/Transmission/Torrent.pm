@@ -19,6 +19,12 @@ sub _create {
 	bless { @_ }, $class;
 }
 
+# current time is overrideable
+sub _time {
+	my $self = shift;
+	return $self->{_time} // time;
+}
+
 # API
 
 sub id {
@@ -162,7 +168,13 @@ sub error_string {
 
 sub eta {
 	my $self = shift;
-	return $self->{eta};
+	return -1 if $self->left_until_done == 0;
+
+	my $left = $self->left_until_done;
+	my $rate = $self->rate_download;
+	my $now = $self->_time;
+
+	return $now + $left/$rate;
 }
 
 sub hash_string {

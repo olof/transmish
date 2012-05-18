@@ -70,8 +70,6 @@ $torrent = Transmission::Torrent->_create(
 
 	added_date => 0,
 	done_date => 3600,
-
-	eta => 0,
 );
 
 stdout_is(sub { status($torrent) },
