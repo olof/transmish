@@ -192,7 +192,7 @@ sub leechers {
 
 sub left_until_done {
 	my $self = shift;
-	return $self->{left_until_done};
+	return $self->size_when_done - $self->downloaded_ever;
 }
 
 sub manual_announce_time {
@@ -237,7 +237,7 @@ sub peers_sending_to_us {
 
 sub percent_done {
 	my $self = shift;
-	return $self->{percent_done};
+	return $self->downloaded_ever / $self->size_when_done;
 }
 
 sub pieces {
@@ -317,7 +317,7 @@ sub upload_ever {
 
 sub upload_ratio {
 	my $self = shift;
-	return $self->{upload_ratio};
+	return $self->uploaded_ever / $self->downloaded_ever;
 }
 
 sub webseeds_sending_to_us {

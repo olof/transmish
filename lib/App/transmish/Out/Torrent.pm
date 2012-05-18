@@ -16,7 +16,7 @@ our $VERSION = 0.1;
 
 require Exporter;
 our @ISA = 'Exporter';
-our @EXPORT_OK = 'summary';
+our @EXPORT_OK = qw/summary status files/;
 
 use warnings FATAL => 'all';
 use strict;
