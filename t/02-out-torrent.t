@@ -4,7 +4,7 @@ use strict;
 use lib 't/lib';
 use Transmission::Torrent;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Test::Output;
 
 $ENV{TZ}='UTC';
@@ -96,5 +96,55 @@ stdout_is(sub { status($torrent) },
 '--------------+------------------------------------------'
 EOF
 	, 'completed torrent status'
+);
+
+$torrent = Transmission::Torrent->_create(
+	name => 'Example torrent',
+
+	id => 42,
+	hash_string => '1234567890abcdef1234567890abcdef12345678',
+	is_private => 'top secret',
+
+	size_when_done => 1024**3+1, # 1GiB
+	downloaded_ever => (1024**3+1)/2,
+	uploaded_ever => 10 * 1024**2+1, # 10MiB
+
+	rate_download => 0,
+	rate_upload => 0,
+	peers_getting_from_us => 0,
+	peers_sending_to_us => 0,
+
+	added_date => 0,
+	done_date => 3600,
+);
+
+stdout_is(sub { status($torrent) },
+	<<EOF
+.----------------------------------------------------------.
+|                      Example torrent                     |
++---------------+------------------------------------------+
+| Key           | Value                                    |
++---------------+------------------------------------------+
+| ID            | 42                                       |
+| Hash          | 1234567890abcdef1234567890abcdef12345678 |
+| Private       | yes                                      |
++---------------+------------------------------------------+
+| Completed     | 50.0%                                    |
+| Size          | 1.00GiB                                  |
+| Downloaded    | 512.00MiB                                |
+| Uploaded      | 10.00MiB                                 |
+| Ratio         | 0.02                                     |
++---------------+------------------------------------------+
+| Upload rate   | 0.00B/s                                  |
+| Download rate | 0.00B/s                                  |
+| Tx to us      | 0                                        |
+| Rx from us    | 0                                        |
++---------------+------------------------------------------+
+| Added at      | 1970-01-01 00:00:00                      |
+| ETA           | Unknown                                  |
+| Left          | 512.00MiB                                |
+'---------------+------------------------------------------'
+EOF
+	, 'half completed torrent status (zero rate download)'
 );
 
