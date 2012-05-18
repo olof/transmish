@@ -55,7 +55,17 @@ Transmission::Torrent object).
 
 sub status {
 	my $torrent = shift;
-	my $done = $torrent->left_until_done == 0;
+	my $done = $torrent->size_when_done > 0 &&
+	           $torrent->left_until_done == 0;
+
+	my $size = $torrent->size_when_done;
+	$size = $size > 0 ? size($size) : 'Unknown';
+
+	my $ratio = $torrent->upload_ratio;
+	$ratio = $ratio >= 0 ? sprintf '%.2f', $ratio : 'Inf';
+
+	my $left = $torrent->left_until_done;
+	$left = $torrent->size_when_done > 0 ? size($left) : 'Unknown';
 
 	# FIXME: this should ideally be replaced by a template engine
 
@@ -65,10 +75,10 @@ sub status {
 		['Private', bool($torrent->is_private)],
 		['---'],
 		['Completed', percentage($torrent->percent_done)],
-		['Size', size($torrent->size_when_done)],
+		['Size', $size],
 		['Downloaded', size($torrent->downloaded_ever), bool(!$done)],
 		['Uploaded', size($torrent->uploaded_ever)],
-		['Ratio', sprintf('%.2f', $torrent->upload_ratio)],
+		['Ratio', $ratio],
 		['---'],
 		['Upload rate', rate($torrent->rate_upload)],
 		['Download rate', rate($torrent->rate_download), bool(!$done)],
@@ -82,10 +92,8 @@ sub status {
 		['---'],
 		['Added at', date($torrent->added_date)],
 		['Completed at', date($torrent->done_date), bool($done)],
-		['ETA', sprintf("%s (in %s)",
-			date(time() + $torrent->eta), duration($torrent->eta)
-		), bool(!$done)],
-		['Left', size($torrent->left_until_done), bool(!$done)],
+		['ETA', _eta($torrent->eta), bool(!$done)],
+		['Left', $left, bool(!$done)],
 	);
 
 	my $t = Text::ASCIITable->new({headingText => $torrent->name});
@@ -133,6 +141,12 @@ sub _file_print {
 		$id, percentage($done/$size),
 	        $want ? 'X' : ' ',
 		$file, size($size);
+}
+
+sub _eta {
+	my $eta = shift;
+	return 'Unknown' if $eta < 0;
+	sprintf('%s (in %s)', date(time() + $eta), duration($eta));
 }
 
 =head1 COPYRIGHT
