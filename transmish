@@ -86,10 +86,10 @@ cmd rm => sub {
 	) or error $client->error;
 };
 
-cmd info => sub {
+cmd torrent => sub {
 	my $client = client or return;
 	my $index = shift or do {
-		error "No id given";
+		error 'No id given';
 		return;
 	};
 
@@ -99,25 +99,19 @@ cmd info => sub {
 		return;
 	}
 	$torrent->read_all;
-	App::transmish::Out::Torrent::status($torrent);
 
-	return 1;
+	unless(@_) {
+		App::transmish::Out::Torrent::status($torrent);
+		return 0;
+	}
+
+	my $cmd = shift;
+	run_subcmd 'torrent', $cmd, $client, $torrent, @_;
 };
 
-cmd files => sub {
-	my $client = client or return;
-	my $index = shift or do {
-		error "No id given";
-		return;
-	};
-
-	my ($torrent) = $client->read_torrents(ids => [$index]);
-	unless($torrent) {
-		error "No torrent with id $index";
-		return;
-	}
-	$torrent->read_all;
-
+subcmd torrent => files => sub {
+	my $client = shift;
+	my $torrent = shift;
 	App::transmish::Out::Torrent::files($torrent);
 	return 1;
 };
@@ -218,15 +212,11 @@ List all torrents.
 List all active torrents; that is torrents which Transmission
 claims to have connected peers with.
 
-=head2 info
+=head2 torrent
 
 Show info for a specific torrent. Takes the id of the torrent
-as argument.
-
-=head2 files
-
-List files for a given torrent. Takes the id of the torrent as
-argument.
+as argument, optionally followed by a sub command (currently
+only "files").
 
 =head2 add
 

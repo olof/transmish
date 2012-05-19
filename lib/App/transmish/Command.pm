@@ -24,11 +24,12 @@ use strict;
 
 require Exporter;
 our @ISA = 'Exporter';
-our @EXPORT = qw/cmd cmds alias run/;
+our @EXPORT = qw/cmd subcmd cmds alias run run_subcmd/;
 
 use App::transmish::Out;
 
 my %fun; # fun fun fun!
+my %subfun; # not as fun
 
 =head1 SUBROUTINES
 
@@ -50,6 +51,29 @@ sub cmd {
 	my $fun = shift;
 
 	$fun{$name} = $fun;
+}
+
+=head2 subcmd
+
+Register a sub command, i.e a command that will only work in the
+context of another command. Takes the top level command as first
+argument, followed by the sub command and then the definition (as
+a coderef).
+
+ subcmd torrent => files => sub {
+     my $client = shift;
+     my $torrent = shift;
+     my @args = @_;
+ };
+
+=cut
+
+sub subcmd {
+	my $parent = shift;
+	my $name = shift;
+	my $fun = shift;
+
+	$subfun{$parent}->{$name} = $fun;
 }
 
 =head2 alias
@@ -93,6 +117,31 @@ sub run {
 	} else {
 		error "No such command '$cmd'";
 	}
+}
+
+=head2 run_subcmd
+
+Invoke a subcommand; takes the name of the toplevel command followed
+by the name of the subcommand. The remaining arguments are given as
+argument to the subcommand itself.
+
+=cut
+
+sub run_subcmd {
+	my $parent = shift;
+	my $cmd = shift;
+	if(not exists $subfun{$parent}) {
+		error "No such parent command, $parent";
+		return 1;
+	}
+
+	my %tbl = %{$subfun{$parent}};
+	if(not exists $tbl{$cmd}) {
+		error "No such command, $cmd";
+		return 1;
+	}
+
+	$subfun{$parent}->{$cmd}->(@_);
 }
 
 =head1 COPYRIGHT
