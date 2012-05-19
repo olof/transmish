@@ -102,7 +102,7 @@ cmd torrent => sub {
 
 	unless(@_) {
 		App::transmish::Out::Torrent::status($torrent);
-		return 0;
+		return 1;
 	}
 
 	my $cmd = shift;
@@ -112,7 +112,33 @@ cmd torrent => sub {
 subcmd torrent => files => sub {
 	my $client = shift;
 	my $torrent = shift;
+	my $cmd = @_ ? shift : 'show';
+
+	run_subcmd 'torrent/files', $cmd, $client, $torrent, @_;
+};
+
+subcmd 'torrent/files' => show => sub {
+	my $client = shift;
+	my $torrent = shift;
 	App::transmish::Out::Torrent::files($torrent);
+	return 1;
+};
+
+subcmd 'torrent/files' => on => sub {
+	my $client = shift;
+	my $torrent = shift;
+	my $pattern = shift;
+
+	select_wanted($torrent, 1, qr/$pattern/);
+	return 1;
+};
+
+subcmd 'torrent/files' => off => sub {
+	my $client = shift;
+	my $torrent = shift;
+	my $pattern = shift;
+
+	select_wanted($torrent, 0, qr/$pattern/);
 	return 1;
 };
 
@@ -147,6 +173,27 @@ cmd help => sub {
 
 cmd quit => sub { exit 0 };
 alias q => 'quit';
+
+sub select_wanted {
+	my $torrent = shift;
+	my $wanted = shift;
+	my $pattern = shift;
+	my $descrf = "%s %s for download\n";
+	my $change = 0;
+
+	for my $file (
+		sort { $a->name cmp $b->name }
+		grep { $_->name =~ /$pattern/ }
+		@{$torrent->files}
+	) {
+		printf $descrf, $wanted ? 'Marking' : 'Unmarking', $file->name;
+		$file->wanted($wanted);
+		$change = 1;
+	}
+
+	$torrent->write_wanted if $change;
+	return 1;
+}
 
 sub gen_matches {
 	my($text, $buf, $start, $end) = @_;
