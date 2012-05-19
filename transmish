@@ -116,6 +116,14 @@ subcmd torrent => files => sub {
 	return 1;
 };
 
+subcmd torrent => set => sub {
+	my $client = shift;
+	my $torrent = shift;
+	my ($key, $val) = shift;
+
+	error 'Not implemented yet. Live long and prosper in the meantime.';
+};
+
 cmd help => sub {
 	my $cmd = shift;
 	my %commands = map { $_ => 1 } cmds;
@@ -215,8 +223,16 @@ claims to have connected peers with.
 =head2 torrent
 
 Show info for a specific torrent. Takes the id of the torrent
-as argument, optionally followed by a sub command (currently
-only "files").
+as argument, optionally followed by a sub command:
+
+=head3 files
+
+List all files and their current status (percent downloaded,
+marked for download, filename etc).
+
+=head3 set
+
+Show or modify per torrent settings.
 
 =head2 add
 
