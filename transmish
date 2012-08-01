@@ -129,7 +129,7 @@ subcmd 'torrent/files' => on => sub {
 	my $torrent = shift;
 	my $pattern = shift;
 
-	select_wanted($torrent, 1, $pattern ? qr/$pattern/ : qr/.*/);
+	select_wanted($client, $torrent, 1, $pattern ? qr/$pattern/ : qr/.*/);
 	return 1;
 };
 
@@ -138,7 +138,7 @@ subcmd 'torrent/files' => off => sub {
 	my $torrent = shift;
 	my $pattern = shift;
 
-	select_wanted($torrent, 0, $pattern ? qr/$pattern/ : qr/.*/);
+	select_wanted($client, $torrent, 0, $pattern ? qr/$pattern/ : qr/.*/);
 	return 1;
 };
 
@@ -175,6 +175,7 @@ cmd quit => sub { exit 0 };
 alias q => 'quit';
 
 sub select_wanted {
+	my $client = shift;
 	my $torrent = shift;
 	my $wanted = shift;
 	my $pattern = shift;
@@ -191,7 +192,8 @@ sub select_wanted {
 		$change = 1;
 	}
 
-	$torrent->write_wanted if $change;
+	return 1 unless $change;
+	$torrent->write_wanted or error $client->error;
 	return 1;
 }
 
