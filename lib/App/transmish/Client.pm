@@ -36,11 +36,13 @@ sub client() {
 	my $url = config->{url} // 'http://localhost:9091/transmission/rpc';
 	my $username = config->{username};
 	my $password = config->{password};
+	my $timeout = config->{timeout} // 10;
 
 	return Transmission::Client->new(
 		url => $url,
 		username => $username,
 		password => $password,
+		timeout => $timeout,
 	);
 }
 
