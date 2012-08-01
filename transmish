@@ -31,26 +31,26 @@ my $term;
 cmd list => sub {
 	my $client = client or return;
 
-	my @torrents = $client->read_torrents or do {
+	$client->read_all or do {
 		error $client->error;
 		return;
 	};
 
-	App::transmish::Out::Torrent::summary($_) for @torrents;
+	App::transmish::Out::Torrent::summary($_) for @{$client->torrents};
 	App::transmish::Out::Client::summary($client);
 };
 
 cmd active => sub {
 	my $client = client or return;
 
-	my @torrents = $client->read_torrents or do {
+	$client->read_all or do {
 		error $client->error;
 		return;
 	};
 
 	App::transmish::Out::Torrent::summary($_) for grep {
 		$_->peers_connected > 0
-	} @torrents;
+	} @{$client->torrents};
 	App::transmish::Out::Client::summary($client);
 };
 
