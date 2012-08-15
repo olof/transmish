@@ -150,6 +150,20 @@ subcmd torrent => set => sub {
 	error 'Not implemented yet. Live long and prosper in the meantime.';
 };
 
+subcmd torrent => start => sub {
+	my $client = shift;
+	my $torrent = shift;
+
+	$torrent->start;
+};
+
+subcmd torrent => stop => sub {
+	my $client = shift;
+	my $torrent = shift;
+
+	$torrent->stop;
+};
+
 cmd help => sub {
 	my $cmd = shift;
 	my %commands = map { $_ => 1 } cmds;
