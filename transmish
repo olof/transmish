@@ -56,13 +56,21 @@ cmd active => sub {
 
 cmd add => sub {
 	my $client = client or return;
-	my $file = shift;
-
+	my $ptrn = shift;
 	my %add_args;
-	$add_args{metainfo} = read_file($file) if -e $file;
-	$add_args{filename} = $file unless $add_args{metainfo};
 
-	$client->add(%add_args) or error $client->error;
+	my @files = glob($ptrn);
+
+	unless(@files) {
+		$add_args{filename} = $ptrn;
+		$client->add(%add_args) or error $client->error;
+	}
+
+	for my $file (@files) {
+		$add_args{metainfo} = read_file($file);
+		$add_args{filename} = $file unless $add_args{metainfo};
+		$client->add(%add_args) or error $client->error;
+	}
 };
 
 cmd rm => sub {
