@@ -82,8 +82,7 @@ sub status {
 		['---'],
 		['Upload rate', rate($torrent->rate_upload)],
 		['Download rate', rate($torrent->rate_download), bool(!$done)],
-		['Tx to us', $torrent->peers_sending_to_us, bool(!$done)],
-		['Rx from us', $torrent->peers_getting_from_us],
+		['Peers', _gen_peer_count($torrent)],
 
 	# These guys just sit there saying -1... not helpful
 	#	['Seeders', $torrent->seeders],
@@ -147,6 +146,14 @@ sub _eta {
 	my $eta = shift;
 	return 'Unknown' if $eta < 0;
 	sprintf('%s (in %s)', date(time() + $eta), duration($eta));
+}
+
+sub _gen_peer_count {
+	my $torrent = shift;
+
+	return sprintf "Seeders:  %d\nLeechers: %d",
+		$torrent->peers_sending_to_us,
+		$torrent->peers_getting_from_us;
 }
 
 =head1 COPYRIGHT

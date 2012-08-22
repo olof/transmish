@@ -66,6 +66,7 @@ $torrent = Transmission::Torrent->_create(
 	rate_download => 0,
 	rate_upload => 0,
 	peers_getting_from_us => 0,
+	peers_sending_to_us => 0,
 
 	added_date => 0,
 	done_date => 3600,
@@ -88,7 +89,8 @@ stdout_is(sub { status($torrent) },
 | Ratio        | 0.01                                     |
 +--------------+------------------------------------------+
 | Upload rate  | 0.00B/s                                  |
-| Rx from us   | 0                                        |
+| Peers        | Seeders:  0                              |
+|              | Leechers: 0                              |
 +--------------+------------------------------------------+
 | Added at     | 1970-01-01 00:00:00                      |
 | Completed at | 1970-01-01 01:00:00                      |
@@ -136,8 +138,8 @@ stdout_is(sub { status($torrent) },
 +---------------+------------------------------------------+
 | Upload rate   | 0.00B/s                                  |
 | Download rate | 0.00B/s                                  |
-| Tx to us      | 0                                        |
-| Rx from us    | 0                                        |
+| Peers         | Seeders:  0                              |
+|               | Leechers: 0                              |
 +---------------+------------------------------------------+
 | Added at      | 1970-01-01 00:00:00                      |
 | ETA           | Unknown                                  |
@@ -186,8 +188,8 @@ stdout_is(sub { status($torrent) },
 +---------------+---------------------------------------------------+
 | Upload rate   | 0.00B/s                                           |
 | Download rate | 512.00KiB/s                                       |
-| Tx to us      | 1                                                 |
-| Rx from us    | 0                                                 |
+| Peers         | Seeders:  1                                       |
+|               | Leechers: 0                                       |
 +---------------+---------------------------------------------------+
 | Added at      | 1970-01-01 00:00:00                               |
 | ETA           | 1970-01-01 00:17:04 (in 17 minutes and 4 seconds) |
