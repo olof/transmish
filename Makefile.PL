@@ -13,6 +13,7 @@ WriteMakefile(
 		'Text::ASCIITable' => 0,
 		'Time::Duration' => 0,
 		'Transmission::Client' => 0.0603,
+		'Test::Output' => 0,
 	},
 );
 
