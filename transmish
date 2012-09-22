@@ -257,7 +257,7 @@ my $opts = {
 GetOptions($opts,
 	'help|h',
 	'verbose|v+',
-	'config|c',
+	'config|c=s',
 ) or exit 1;
 
 crap "No non-interactive support yet" unless -t STDIN;
