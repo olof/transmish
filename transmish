@@ -28,30 +28,25 @@ use Pod::Usage;
 my $debug = 3;
 my $term;
 
-cmd list => sub {
+sub _list {
 	my $client = client or return;
+	my $fun = shift;
+	my @ids = @_;
+	my @torrents = $client->read_torrents(
+		@ids ? (ids => [ @ids ]) : (),
+	);
 
-	$client->read_all or do {
-		error $client->error;
-		return;
-	};
-
-	App::transmish::Out::Torrent::summary($_) for @{$client->torrents};
+	App::transmish::Out::Torrent::summary($_) for
+		grep { $fun->($_) } @{$client->torrents};
 	App::transmish::Out::Client::summary($client);
 };
 
+cmd list => sub {
+	_list(sub { 1 }, @_);
+};
+
 cmd active => sub {
-	my $client = client or return;
-
-	$client->read_all or do {
-		error $client->error;
-		return;
-	};
-
-	App::transmish::Out::Torrent::summary($_) for grep {
-		$_->peers_connected > 0
-	} @{$client->torrents};
-	App::transmish::Out::Client::summary($client);
+	_list(sub { $_[0]->peers_connected > 0 }, @_);
 };
 
 cmd add => sub {
