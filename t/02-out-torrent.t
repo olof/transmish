@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use lib 't/lib';
 use Transmission::Torrent;
-use Test::More tests => 6;
+use Test::More tests => 8;
 use Test::Output;
 
 BEGIN {
@@ -107,6 +107,54 @@ $torrent = Transmission::Torrent->_create(
 	is_private => 'top secret',
 
 	size_when_done => 1024**3+1, # 1GiB
+	total_size => 2*(1024**3)+1, # 2GiB
+	downloaded_ever => 1024**3+1,
+	uploaded_ever => 10 * 1024**2+1, # 10MiB
+
+	rate_download => 0,
+	rate_upload => 0,
+	peers_getting_from_us => 0,
+	peers_sending_to_us => 0,
+
+	added_date => 0,
+	done_date => 3600,
+);
+
+stdout_is(sub { status($torrent) },
+	<<EOF
+.---------------------------------------------------------.
+|                     Example torrent                     |
++--------------+------------------------------------------+
+| Key          | Value                                    |
++--------------+------------------------------------------+
+| ID           | 42                                       |
+| Hash         | 1234567890abcdef1234567890abcdef12345678 |
+| Private      | yes                                      |
++--------------+------------------------------------------+
+| Completed    | 100.0% (total: 50.0%)                    |
+| Size         | 1.00GiB (total: 2.00GiB)                 |
+| Uploaded     | 10.00MiB                                 |
+| Ratio        | 0.01                                     |
++--------------+------------------------------------------+
+| Upload rate  | 0.00B/s                                  |
+| Peers        | Seeders:  0                              |
+|              | Leechers: 0                              |
++--------------+------------------------------------------+
+| Added at     | 1970-01-01 00:00:00                      |
+| Completed at | 1970-01-01 01:00:00                      |
+'--------------+------------------------------------------'
+EOF
+	, 'completed torrent status'
+);
+
+$torrent = Transmission::Torrent->_create(
+	name => 'Example torrent',
+
+	id => 42,
+	hash_string => '1234567890abcdef1234567890abcdef12345678',
+	is_private => 'top secret',
+
+	size_when_done => 1024**3+1, # 1GiB
 	downloaded_ever => (1024**3+1)/2,
 	uploaded_ever => 10 * 1024**2+1, # 10MiB
 
@@ -147,6 +195,57 @@ stdout_is(sub { status($torrent) },
 '---------------+------------------------------------------'
 EOF
 	, 'half completed torrent status (zero rate download)'
+);
+
+$torrent = Transmission::Torrent->_create(
+	name => 'Example torrent',
+
+	id => 42,
+	hash_string => '1234567890abcdef1234567890abcdef12345678',
+	is_private => 'top secret',
+
+	size_when_done => 1024**3+1, # 1GiB
+	total_size => 2*(1024**3)+1, # 2GiB
+	downloaded_ever => (1024**3+1)/2,
+	uploaded_ever => 10 * 1024**2+1, # 10MiB
+
+	rate_download => 0,
+	rate_upload => 0,
+	peers_getting_from_us => 0,
+	peers_sending_to_us => 0,
+
+	added_date => 0,
+	done_date => 3600,
+);
+
+stdout_is(sub { status($torrent) },
+	<<EOF
+.----------------------------------------------------------.
+|                      Example torrent                     |
++---------------+------------------------------------------+
+| Key           | Value                                    |
++---------------+------------------------------------------+
+| ID            | 42                                       |
+| Hash          | 1234567890abcdef1234567890abcdef12345678 |
+| Private       | yes                                      |
++---------------+------------------------------------------+
+| Completed     | 50.0% (total: 25.0%)                     |
+| Size          | 1.00GiB (total: 2.00GiB)                 |
+| Downloaded    | 512.00MiB                                |
+| Uploaded      | 10.00MiB                                 |
+| Ratio         | 0.02                                     |
++---------------+------------------------------------------+
+| Upload rate   | 0.00B/s                                  |
+| Download rate | 0.00B/s                                  |
+| Peers         | Seeders:  0                              |
+|               | Leechers: 0                              |
++---------------+------------------------------------------+
+| Added at      | 1970-01-01 00:00:00                      |
+| ETA           | Unknown                                  |
+| Left          | 512.00MiB                                |
+'---------------+------------------------------------------'
+EOF
+	, 'half completed torrent status (not all files wanted)'
 );
 
 $torrent = Transmission::Torrent->_create(

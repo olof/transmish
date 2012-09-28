@@ -74,8 +74,8 @@ sub status {
 		['Hash', $torrent->hash_string],
 		['Private', bool($torrent->is_private)],
 		['---'],
-		['Completed', percentage($torrent->percent_done)],
-		['Size', $size],
+		['Completed', _gen_percent($torrent)],
+		['Size', _gen_size($torrent)],
 		['Downloaded', size($torrent->downloaded_ever), bool(!$done)],
 		['Uploaded', size($torrent->uploaded_ever)],
 		['Ratio', $ratio],
@@ -154,6 +154,32 @@ sub _gen_peer_count {
 	return sprintf "Seeders:  %d\nLeechers: %d",
 		$torrent->peers_sending_to_us,
 		$torrent->peers_getting_from_us;
+}
+
+sub _gen_percent {
+	my $torrent = shift;
+	my $tot_size = $torrent->total_size // $torrent->size_when_done;
+	my $is_all = $torrent->size_when_done == $tot_size;
+	my $total_percent = $torrent->downloaded_ever / $tot_size;
+
+	return percentage($torrent->percent_done) if $is_all;
+	return sprintf "%s (total: %s)",
+		percentage($torrent->percent_done),
+		percentage($total_percent);
+}
+
+sub _gen_size {
+	my $torrent = shift;
+	my $tot_size = $torrent->total_size;
+	my $size = $torrent->size_when_done;
+
+	return size($size) unless
+		$tot_size and
+		$tot_size != $torrent->size_when_done;
+
+	return sprintf "%s (total: %s)",
+		size($size),
+		size($tot_size);
 }
 
 =head1 COPYRIGHT
