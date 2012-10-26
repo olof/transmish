@@ -13,10 +13,11 @@ App::transmish::Client - convenience wrapper around Transmission::Client
 
 package App::transmish::Client;
 
-our $VERSION = 0.1;
-
 use warnings;
 use strict;
+
+our $VERSION = 0.1;
+
 require Exporter;
 our @ISA = 'Exporter';
 our @EXPORT = 'client';

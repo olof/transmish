@@ -12,11 +12,12 @@ App::transmish::Utils - various helper functions
 =cut
 
 package App::transmish::Utils;
-our $VERSION = 0.1;
-
 use warnings;
 use strict;
 use feature qw/say/;
+
+our $VERSION = 0.1;
+
 require Exporter;
 
 use App::transmish::Out;

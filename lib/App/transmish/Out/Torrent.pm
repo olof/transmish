@@ -12,15 +12,16 @@ App::transmish::Out::Torrent - output torrent related information
 =cut
 
 package App::transmish::Out::Torrent;
+
+use warnings FATAL => 'all';
+use strict;
+use feature qw/say/;
+
 our $VERSION = 0.1;
 
 require Exporter;
 our @ISA = 'Exporter';
 our @EXPORT_OK = qw/summary status files/;
-
-use warnings FATAL => 'all';
-use strict;
-use feature qw/say/;
 
 use App::transmish::Utils qw/percentage rate size date bool/;
 use Text::ASCIITable;

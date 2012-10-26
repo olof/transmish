@@ -17,10 +17,10 @@ and invokes them when asked to.
 =cut
 
 package App::transmish::Command;
-our $VERSION = 0.1;
-
 use warnings;
 use strict;
+
+our $VERSION = 0.1;
 
 require Exporter;
 our @ISA = 'Exporter';

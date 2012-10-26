@@ -12,15 +12,16 @@ App::transmish::Out::Client - output client related information
 =cut
 
 package App::transmish::Out::Client;
+
+use warnings FATAL => 'all';
+use strict;
+use feature qw/say/;
+
 our $VERSION = 0.1;
 
 require Exporter;
 our @ISA = 'Exporter';
 our @EXPORT_OK = qw/summary/;
-
-use warnings FATAL => 'all';
-use strict;
-use feature qw/say/;
 
 use App::transmish::Out;
 use App::transmish::Utils qw/rate/;

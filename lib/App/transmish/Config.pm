@@ -12,10 +12,11 @@ App::transmish::Config - handle configuration
 =cut
 
 package App::transmish::Config;
-our $VERSION = 0.1;
-
 use warnings;
 use strict;
+
+our $VERSION = 0.1;
+
 require Exporter;
 our @ISA = 'Exporter';
 our @EXPORT = 'config';

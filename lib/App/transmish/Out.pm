@@ -12,12 +12,12 @@ App::transmish::Out - output related helper functions
 =cut
 
 package App::transmish::Out;
-our $VERSION = 0.1;
-my $DEBUG = 0;
-
 use warnings;
 use strict;
 use feature qw/say/;
+
+our $VERSION = 0.1;
+my $DEBUG = 0;
 
 require Exporter;
 our @ISA = 'Exporter';
