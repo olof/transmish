@@ -23,6 +23,7 @@ use App::transmish::Utils qw/read_file/;
 use Getopt::Long qw/:config gnu_getopt/;
 use Term::ReadLine;
 use MIME::Base64;
+use IO::Interactive qw/is_interactive/;
 use Pod::Usage;
 
 my $debug = 3;
@@ -255,7 +256,7 @@ GetOptions($opts,
 	'config|c=s',
 ) or exit 1;
 
-crap "No non-interactive support yet" unless -t STDIN;
+crap "No non-interactive support yet" unless is_interactive;
 
 App::transmish::Out::dbglvl($opts->{verbose});
 App::transmish::Config::load($opts->{config});

@@ -9,6 +9,7 @@ WriteMakefile(
 
 	PREREQ_PM => {
 		'Config::Tiny' => 0,
+		'IO::Interactive' => 0,
 		'LWP::UserAgent' => 0,
 		'Text::ASCIITable' => 0,
 		'Time::Duration' => 0,
