@@ -34,7 +34,7 @@ newline is appended.
 
 =cut
 
-sub error(@) {
+sub error {
 	say "Error: @_";
 }
 
@@ -47,7 +47,7 @@ The rest of the arguments are passed to say (prepended by "Debug: ").
 
 =cut
 
-sub dbg($@) {
+sub dbg {
 	my $level = shift;
 
 	say "Debug: @_" unless $DEBUG < $level;
@@ -60,7 +60,7 @@ printing the error message passed to it.
 
 =cut
 
-sub crap(@) {
+sub crap {
 	error @_;
 	exit 1;
 }
@@ -71,7 +71,7 @@ Call Data::Dumper on argument and print it if debuglevel is above 3.
 
 =cut
 
-sub dumper($) {
+sub dumper {
 	my $obj = shift;
 	dbg 3, Dumper($obj);
 }

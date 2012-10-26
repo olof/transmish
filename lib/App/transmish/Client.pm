@@ -33,7 +33,7 @@ from App::transmish::Config. Takes no arguments.
 
 =cut
 
-sub client() {
+sub client {
 	my $url = config->{url} // 'http://localhost:9091/transmission/rpc';
 	my $username = config->{username};
 	my $password = config->{password};
