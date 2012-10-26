@@ -178,6 +178,15 @@ subcmd torrent => stop => sub {
 	$torrent->stop;
 };
 
+subcmd torrent => move => sub {
+	my $client = shift;
+	my $torrent = shift;
+	my $path = shift;
+
+	$torrent->move($path) && return 1;
+	error "Could not move torrent: ", $torrent->error_string;
+};
+
 cmd help => sub {
 	my $cmd = shift;
 	my %commands = map { $_ => 1 } cmds;
