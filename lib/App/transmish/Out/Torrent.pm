@@ -160,6 +160,7 @@ sub _gen_peer_count {
 sub _gen_percent {
 	my $torrent = shift;
 	my $tot_size = $torrent->total_size // $torrent->size_when_done;
+	return "unknown" unless $tot_size;
 	my $is_all = $torrent->size_when_done == $tot_size;
 	my $total_percent = $torrent->downloaded_ever / $tot_size;
 
