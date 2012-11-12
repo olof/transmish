@@ -18,7 +18,7 @@ use App::transmish::Out::Client;
 use App::transmish::Out::Torrent;
 use App::transmish::Command;
 use App::transmish::Client;
-use App::transmish::Utils qw/read_file/;
+use App::transmish::Utils qw/read_file strrange/;
 
 use Getopt::Long qw/:config gnu_getopt/;
 use Term::ReadLine;
@@ -32,7 +32,7 @@ my $term;
 sub _list {
 	my $client = client or return;
 	my $fun = shift;
-	my @ids = @_;
+	my @ids = map { strrange($_) } @_;
 	my @torrents = $client->read_torrents(
 		@ids ? (ids => [ @ids ]) : (),
 	);
