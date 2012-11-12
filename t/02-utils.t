@@ -7,6 +7,7 @@ use App::transmish::Utils
 	qw/
 		rate size date bool percentage
 		is_http_uri read_file http_file
+		strrange
 	/
 ;
 
@@ -35,13 +36,23 @@ my @tests = (
 	['bool(1)', 'yes'],
 	['bool("yes")', 'yes'],
 	['bool("no")', 'yes'],
+
+	['strrange()', []],
+	['strrange(1)', [1]],
+	['strrange("1")', [1]],
+	['strrange(1, 2)', [1,2]],
+	['strrange("1", "2")', [1,2]],
+	['strrange("1-3")', [1,2,3]],
+	['strrange("1-3", 4)', [1,2,3,4]],
+	['strrange("1-3", "4")', [1,2,3,4]],
 );
 
 $ENV{TZ} = 'UTC';
 plan tests => int @tests;
 
-for(@tests) {
+for (@tests) {
 	my ($eval, $ref) = @$_;
-	is(eval($eval), $ref, $eval);
+	$ref = [$ref] unless ref $ref; # ref ref ref ref, whoops :-)
+	is_deeply([eval($eval)], $ref, $eval);
 }
 

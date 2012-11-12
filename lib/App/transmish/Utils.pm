@@ -26,7 +26,8 @@ use LWP::UserAgent;
 
 our @ISA = 'Exporter';
 our @EXPORT_OK = qw/
-	rate size date bool percentage is_http_uri read_file http_file
+	rate size date bool percentage is_http_uri
+	read_file http_file strrange
 /;
 
 =head1 SUBROUTINES
@@ -98,6 +99,30 @@ Convert a fraction to a percentage.
 sub percentage {
 	my $p = shift;
 	return sprintf "%.1f%%", $p*100;
+}
+
+=head2 strrange
+
+Convert string representation of lists with to an array;
+supporting a range syntax. Example:
+
+ strrange("10")          # 10
+ strrange("10", "11")    # 10, 11
+ sttrange("10-13")       # 10, 11, 12, 13
+ sttrange(9, "11-13")    #  9, 11, 12, 13
+
+=cut
+
+sub strrange {
+	my @ret;
+	for (@_) {
+		if (my ($c, $d) = /^(-?[0-9]+)-(-?[0-9]+)$/) {
+			push @ret, ($c .. $d) if $d > $c;
+		} else {
+			push @ret, $_;
+		}
+	}
+	return @ret;
 }
 
 =head2 read_file
