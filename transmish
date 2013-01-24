@@ -50,6 +50,11 @@ cmd active => sub {
 	_list(sub { $_[0]->peers_connected > 0 }, @_);
 };
 
+cmd grep => sub {
+	my $ptrn = shift;
+	_list(sub { $_[0]->name =~ /$ptrn/i }, @_);
+};
+
 cmd add => sub {
 	my $client = client or return;
 	my $ptrn = shift;
