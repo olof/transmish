@@ -137,7 +137,7 @@ sub files {
 
 sub _file_print {
 	my($id, $file, $size, $done, $want) = @_;
-	printf "%-3d | %s | [%s] | %s (%s)\n",
+	printf "%-3d | %6s | [%s] | %s (%s)\n",
 		$id, percentage($done/$size),
 	        $want ? 'X' : ' ',
 		$file, size($size);
