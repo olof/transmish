@@ -55,31 +55,46 @@ cmd grep => sub {
 	_list(sub { $_[0]->name =~ /$ptrn/i }, @_);
 };
 
+sub add_torrent_file {
+	my $client = shift;
+	my $file = shift;
+
+	my %add_args;
+	$add_args{metainfo} = read_file($file);
+	$add_args{filename} = $file unless $add_args{metainfo};
+	return $client->add(%add_args);
+}
+
+sub add_torrent_uri {
+	my $client = shift;
+	my $uri = shift;
+	return $client->add(file => $uri);
+}
+
 cmd add => sub {
 	my $client = client or return;
-	my $ptrn = shift;
 	my %add_args;
 
-	my @files = glob($ptrn);
+	for my $file (@_) {
+		my @files = glob($file);
 
-	unless(@files) {
-		$add_args{filename} = $ptrn;
-
-		if($client->add(%add_args)) {
-			say "Added '$ptrn'";
-		} else {
-			error $client->error;
+		# If the glob fails, we give it directly to transmission,
+		# it could be a URI or a server local file.
+		unless (@files) {
+			if (add_torrent_uri($client, $file)) {
+				say "Added URI '$file'";
+			} else {
+				say "Failed to add URI '$file'";
+			}
 		}
-	}
 
-	for my $file (@files) {
-		$add_args{metainfo} = read_file($file);
-		$add_args{filename} = $file unless $add_args{metainfo};
-
-		if($client->add(%add_args)) {
-			say "Added '$file'";
-		} else {
-			error $client->error;
+		# Anything in @files is a client local file.
+		for (@files) {
+			if (add_torrent_file($client, $_)) {
+				say "Added '$_'";
+			} else {
+				say "Failed to add '$_'";
+			}
 		}
 	}
 };
