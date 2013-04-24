@@ -284,6 +284,7 @@ while(defined (my $row = $term->readline('> '))) {
 	next unless $row =~ /\S/;
 	$term->addhistory($row);
 
+	# TODO: Add support for shell lexing
 	run split /\s+/, $row;
 }
 
