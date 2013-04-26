@@ -22,6 +22,7 @@ use App::transmish::Utils qw/read_file strrange/;
 
 use Getopt::Long qw/:config gnu_getopt/;
 use Term::ReadLine;
+use Text::ParseWords;
 use MIME::Base64;
 use IO::Interactive qw/is_interactive/;
 use Pod::Usage;
@@ -299,8 +300,13 @@ while(defined (my $row = $term->readline('> '))) {
 	next unless $row =~ /\S/;
 	$term->addhistory($row);
 
-	# TODO: Add support for shell lexing
-	run split /\s+/, $row;
+	# Parse line with shell style quoting
+	my @tokens = parse_line(qr/\s+/, 0, $row);
+	if (@tokens) {
+		run @tokens;
+	} else {
+		say "Error: Syntax error!"
+	}
 }
 
 =head1 NAME
