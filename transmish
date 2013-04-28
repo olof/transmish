@@ -297,7 +297,8 @@ $attr->{attempted_completion_function} = \&gen_matches;
 my $out = $term->OUT // \*STDOUT;
 
 while(defined (my $row = $term->readline('> '))) {
-	next unless $row =~ /\S/;
+	$row =~ s/\s*$//;
+	next unless $row;
 	$term->addhistory($row);
 
 	# Parse line with shell style quoting
