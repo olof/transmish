@@ -37,6 +37,10 @@ our @EXPORT_OK = qw/
 Convert a numeric value, representing rate per seconds in bytes,
 to a more human readable value + si prefix + unit of time (/s).
 
+Rates lesser or equal to 1024B/s are represented as a fraction
+of a KiB/s for usability reasons (it's confusing when a rate
+jumps from 1KiB/s to 1000B/s).
+
 =cut
 
 sub rate {
@@ -49,12 +53,20 @@ Convert number of bytes to the greatest possible SI prefixed
 number of bytes, and append this to the value and return it
 (e.g. 1024 -> 1KiB).
 
+Sizes lesser or equal to 1024B are represented as a fraction
+of a KiB for usability reasons (this function is used to
+present rates, and it can be confusing when a rate jumps
+from 1KiB/s to 1000B/s).
+
 =cut
 
 sub size {
 	my $n = shift;
-	my $i = 0;
-	my @si = qw/B KiB MiB GiB TiB PiB/;
+	my $i = -1;
+	my @si = qw/KiB MiB GiB TiB PiB/;
+
+	return '0.00B' unless $n;
+	return sprintf '%.2fKiB', $n/1024 if $n <= 1024;
 
 	while($n > 1024 and $i < @si) {
 		$n /= 1024;
