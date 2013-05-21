@@ -85,7 +85,7 @@ cmd add => sub {
 			if (add_torrent_uri($client, $file)) {
 				say "Added URI '$file'";
 			} else {
-				print "Failed to add URI '%s': %s'\n",
+				printf "Failed to add URI '%s': %s'\n",
 					$file, $client->error;
 			}
 		}
@@ -95,7 +95,7 @@ cmd add => sub {
 			if (add_torrent_file($client, $_)) {
 				say "Added '$_'";
 			} else {
-				print "Failed to add local file '%s': %s'\n",
+				printf "Failed to add file '%s': %s\n",
 					$_, $client->error;
 			}
 		}
