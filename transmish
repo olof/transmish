@@ -69,7 +69,7 @@ sub add_torrent_file {
 sub add_torrent_uri {
 	my $client = shift;
 	my $uri = shift;
-	return $client->add(file => $uri);
+	return $client->add(filename => $uri);
 }
 
 cmd add => sub {
