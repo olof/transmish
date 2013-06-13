@@ -21,7 +21,7 @@ my $DEBUG = 0;
 
 require Exporter;
 our @ISA = 'Exporter';
-our @EXPORT = qw/error dbg crap dumper/;
+our @EXPORT = qw/error ymhfu dbg crap dumper/;
 
 use Data::Dumper;
 
@@ -36,6 +36,17 @@ newline is appended.
 
 sub error {
 	say "Error: @_";
+}
+
+=head2 ymhfu
+
+Print a warning message. The subroutine name is an acronym for "you
+may have fucked up", credit for the awesome name goes to patogen.
+
+=cut
+
+sub ymhfu {
+	say "Warning: @_";
 }
 
 =head2 dbg
