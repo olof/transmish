@@ -34,6 +34,11 @@ sub _list {
 	my $client = client or return;
 	my $fun = shift;
 	my @ids = map { strrange($_) } @_;
+
+	for (@ids) {
+		ymhfu "$_ isn't numeric; did you mean grep?" unless /^[0-9]+$/;
+	}
+
 	my @torrents = $client->read_torrents(
 		@ids ? (ids => [ @ids ]) : (),
 	);
