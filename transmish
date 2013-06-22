@@ -41,6 +41,10 @@ sub _list {
 
 	my @torrents = $client->read_torrents(
 		@ids ? (ids => [ @ids ]) : (),
+		fields => [qw(
+			name percentDone rateDownload
+			rateUpload uploadedEver
+		)],
 	);
 
 	App::transmish::Out::Torrent::summary($_) for
