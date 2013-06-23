@@ -56,6 +56,9 @@ Transmission::Torrent object).
 
 sub status {
 	my $torrent = shift;
+
+	# If sizeWhenDone is 0, we can assume we have insufficient
+	# information (e.g. magnet links etc).
 	my $done = $torrent->size_when_done > 0 &&
 	           $torrent->left_until_done == 0;
 
