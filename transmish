@@ -140,12 +140,33 @@ cmd torrent => sub {
 		return;
 	};
 
-	my ($torrent) = $client->read_torrents(ids => [$index]);
+	my ($torrent) = $client->read_torrents(
+		ids => [$index],
+		fields => [qw(
+			id
+			name
+			sizeWhenDone
+			leftUntilDone
+			uploadRatio
+			hashString
+			isPrivate
+			downloadedEver
+			uploadedEver
+			rateUpload
+			rateDownload
+			addedDate
+			doneDate
+			eta
+			peersSendingToUs
+			peersGettingFromUs
+			totalSize
+			percentDone
+		)],
+	);
 	unless($torrent) {
 		error "No torrent with id $index";
 		return;
 	}
-	$torrent->read_all;
 
 	unless(@_) {
 		App::transmish::Out::Torrent::status($torrent);
