@@ -33,6 +33,7 @@ my $term;
 sub _list {
 	my $client = client or return;
 	my $fun = shift;
+	my $fields = shift;
 	my @ids = map { strrange($_) } @_;
 
 	for (@ids) {
@@ -44,7 +45,7 @@ sub _list {
 		fields => [qw(
 			name percentDone rateDownload
 			rateUpload uploadedEver
-		)],
+		), @$fields],
 	);
 
 	App::transmish::Out::Torrent::summary($_) for
@@ -53,16 +54,16 @@ sub _list {
 };
 
 cmd list => sub {
-	_list(sub { 1 }, @_);
+	_list(sub { 1 }, [], @_);
 };
 
 cmd active => sub {
-	_list(sub { $_[0]->peers_connected > 0 }, @_);
+	_list(sub { $_[0]->peers_connected > 0 }, ['peersConnected'], @_);
 };
 
 cmd grep => sub {
 	my $ptrn = shift;
-	_list(sub { $_[0]->name =~ /$ptrn/i }, @_);
+	_list(sub { $_[0]->name =~ /$ptrn/i }, [], @_);
 };
 
 sub add_torrent_file {
