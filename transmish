@@ -34,7 +34,10 @@ sub _list {
 	my $client = client or return;
 	my $fun = shift;
 	my $fields = shift;
-	my @ids = map { strrange($_) } @_;
+
+	# FIXME: Use getopt... And don't implement it here of all places...
+	my %flags = map { substr($_, 1) => 1 } grep(/^-/, @_);
+	my @ids = map { strrange($_) } grep { ! /^-/ } @_;
 
 	for (@ids) {
 		ymhfu "$_ isn't numeric; did you mean grep?" unless /^[0-9]+$/;
@@ -48,7 +51,13 @@ sub _list {
 		), @$fields],
 	);
 
-	App::transmish::Out::Torrent::summary($_) for
+	my $printfun = sub { App::transmish::Out::Torrent::summary(@_) };
+	$printfun = sub {
+		my $torrent = shift;
+		printf "%3d: %s\n", $torrent->id, $torrent->name;
+	} if $flags{1} or $flags{oneline};
+
+	$printfun->($_) for
 		grep { $fun->($_) } @{$client->torrents};
 	App::transmish::Out::Client::summary($client);
 };
