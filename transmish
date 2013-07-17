@@ -401,12 +401,28 @@ client.
 
 =head2 list
 
-List all torrents.
+List all torrents. Or supply a list of torrent ids to show. You
+can list torrent ids one by one or using a range syntax, or
+combine:
+
+   list 1 2 5-10 30 50-100
+
+You can also supply the argument -1 to make the list compact
+(each torrent occupies one line, hence the flag name).
 
 =head2 active
 
 List all active torrents; that is torrents which Transmission
-claims to have connected peers with.
+claims to have connected peers with. Accepts same kind of
+arguments as list. See help list.
+
+=head2 grep
+
+Search torrents by name (perl compatible regular expression to be
+precise). The first argument is the regular expression. You can
+limit your grepping to a certain set of torrent ids by supplying
+them as additional arguments using the same syntax as list. It
+accepts all the flags list does, see 'help list' for details.
 
 =head2 torrent
 
@@ -418,9 +434,52 @@ as argument, optionally followed by a sub command:
 List all files and their current status (percent downloaded,
 marked for download, filename etc).
 
+=head3 files <on|off> [regexp]
+
+Mark or unmark files for download. You can optionally supply a
+perl compatible regular expression limiting what files you want
+to mark/unmark. E.g., the following will mark all files
+containing S01E01 for download:
+
+    torrent 123 files on S01E01
+
+=head3 start
+
+Start the torrent after it has been stopped.
+
+=head3 stop
+
+Stop the torrent from up- and downloading.
+
+=head3 rm
+
+Remove the torrent (more or less an alias for the top level rm
+command). Accepts a -d flag, making it actually remote the data.
+
 =head3 set
 
-Show or modify per torrent settings.
+Show or modify per torrent settings. Not implemented yet :(
+
+=head3 move <path>
+
+Move the torrent to a new path. This will physically move the
+data. The path is a path on the host running transmission-daemon,
+not your local host (if they're not the same).
+
+=head2 foreach
+
+Run a torrent command for several torrents at once. Takes a list
+of torrents using the same syntax as the list command, followed
+by the keyword "do" and then the command to be executed. Examples
+follow:
+
+    foreach 1 2 3 do       # simply shows the torrents
+    # This translates to
+    torrent 1
+    torrent 2
+    torrent 3
+
+    foreach 1-5 do rm      # remove torrent 1-5
 
 =head2 add
 
@@ -430,7 +489,10 @@ Add torrent, either as a path to a local file or as an URI.
 
 Remove torrent. Takes the id of the torrent as argument. There
 will be no confirmation dialog so make sure not to do any typos
-(this is subject to change).
+(this is subject to change). By default, it will only remove the
+torrent in the sense that it will disassociate the torrent from
+transmission, but it does accept a -d flag to make it actually
+remove the data as well.
 
 =head2 quit
 
