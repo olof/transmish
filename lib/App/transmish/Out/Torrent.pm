@@ -1,8 +1,8 @@
 # Copyright 2012, Olof Johansson <olof@ethup.se>
 #
-# Copying and distribution of this file, with or without 
-# modification, are permitted in any medium without royalty 
-# provided the copyright notice are preserved. This file is 
+# Copying and distribution of this file, with or without
+# modification, are permitted in any medium without royalty
+# provided the copyright notice are preserved. This file is
 # offered as-is, without any warranty.
 
 =head1 NAME
@@ -40,7 +40,7 @@ been uploaded. Takes a Transmission::Torrent object as argument.
 sub summary {
 	my $torrent = shift;
 	printf "%3d: %s\n", $torrent->id, $torrent->name;
-	printf "      [%s] [down: %s] [up: %s] [uploaded: %s]\n", 
+	printf "      [%s] [down: %s] [up: %s] [uploaded: %s]\n",
 		percentage($torrent->percent_done),
 		rate($torrent->rate_download),
 		rate($torrent->rate_upload),
