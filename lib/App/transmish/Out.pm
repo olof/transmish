@@ -1,4 +1,4 @@
-# Copyright 2012, Olof Johansson <olof@ethup.se>
+# Copyright 2012-2013, Olof Johansson <olof@ethup.se>
 #
 # Copying and distribution of this file, with or without
 # modification, are permitted in any medium without royalty
