@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use lib 't/lib';
 use Transmission::Torrent;
-use Test::More tests => 11;
+use Test::More tests => 12;
 use Test::Output;
 
 BEGIN {
@@ -443,6 +443,56 @@ stdout_is(sub { status($torrent) },
 | Added at      | 1970-01-01 00:00:00                      |
 | ETA           | Unknown                                  |
 | Left          | 1.00GiB                                  |
+'---------------+------------------------------------------'
+EOF
+	, 'torrent not started'
+);
+
+$torrent = Transmission::Torrent->_create(
+	name => 'debian-7.0.0-amd64-DVD-1.iso',
+
+	id => 42,
+	hash_string => '96534331d2d75acf14f8162770495bd5b05a17a9',
+	is_private => 0,
+
+	size_when_done => 0,
+	downloaded_ever => 0,
+	uploaded_ever => 0,
+
+	rate_download => 0,
+	rate_upload => 0,
+	peers_getting_from_us => 0,
+	peers_sending_to_us => 0,
+
+	added_date => 0,
+	done_date => -1,
+);
+
+stdout_is(sub { status($torrent) },
+	<<EOF
+.----------------------------------------------------------.
+|               debian-7.0.0-amd64-DVD-1.iso               |
++---------------+------------------------------------------+
+| Key           | Value                                    |
++---------------+------------------------------------------+
+| ID            | 42                                       |
+| Hash          | 96534331d2d75acf14f8162770495bd5b05a17a9 |
+| Private       | no                                       |
++---------------+------------------------------------------+
+| Completed     | unknown                                  |
+| Size          | 0.00B                                    |
+| Downloaded    | 0.00B                                    |
+| Uploaded      | 0.00B                                    |
+| Ratio         | Inf                                      |
++---------------+------------------------------------------+
+| Upload rate   | 0.00B/s                                  |
+| Download rate | 0.00B/s                                  |
+| Peers         | Seeders:  0                              |
+|               | Leechers: 0                              |
++---------------+------------------------------------------+
+| Added at      | 1970-01-01 00:00:00                      |
+| ETA           | Unknown                                  |
+| Left          | Unknown                                  |
 '---------------+------------------------------------------'
 EOF
 	, 'torrent not started'
