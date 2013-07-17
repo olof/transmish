@@ -253,6 +253,19 @@ subcmd torrent => move => sub {
 	error "Could not move torrent: ", $torrent->error_string;
 };
 
+cmd 'foreach' => sub {
+	my @ids;
+	while (@_) {
+		last if $_[0] eq 'do';
+		push @ids, strrange(shift);
+	}
+	shift; # Also drop the 'do'.
+
+	for (@ids) {
+		run 'torrent', $_, @_;
+	}
+};
+
 cmd help => sub {
 	my $cmd = shift;
 	my %commands = map { $_ => 1 } cmds;
