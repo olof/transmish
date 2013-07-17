@@ -54,7 +54,10 @@ sub _list {
 	my $printfun = sub { App::transmish::Out::Torrent::summary(@_) };
 	$printfun = sub {
 		my $torrent = shift;
-		printf "%3d: %s\n", $torrent->id, $torrent->name;
+		printf "%3d: [%3d%%] %s\n",
+			$torrent->id,
+			int($torrent->percent_done*100),
+			$torrent->name;
 	} if $flags{1} or $flags{oneline};
 
 	$printfun->($_) for
