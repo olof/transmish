@@ -134,6 +134,7 @@ cmd rm => sub {
 	my $delete = 0;
 
 	# FIXME: do getopt on commands
+	# FIXME: you sure, dawg? [yN]
 	if($index eq '-d') {
 		$index = shift;
 		$delete = 1;
@@ -251,6 +252,19 @@ subcmd torrent => move => sub {
 
 	$torrent->move($path) && return 1;
 	error "Could not move torrent: ", $torrent->error_string;
+};
+
+subcmd torrent => rm => sub {
+	my $client = shift;
+	my $torrent = shift;
+	my $delete = shift;
+
+	# FIXME: Ugly, needs some getopt!
+	if ($delete and $delete eq '-d') {
+		run 'rm', '-d', $torrent->id;
+	} else {
+		run 'rm', $torrent->id;
+	}
 };
 
 cmd 'foreach' => sub {
