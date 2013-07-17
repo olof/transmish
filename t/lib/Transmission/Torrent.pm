@@ -322,6 +322,7 @@ sub upload_ever {
 
 sub upload_ratio {
 	my $self = shift;
+	return 0 if $self->downloaded_ever == 0;
 	return $self->uploaded_ever / $self->downloaded_ever;
 }
 

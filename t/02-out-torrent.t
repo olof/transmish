@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use lib 't/lib';
 use Transmission::Torrent;
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::Output;
 
 BEGIN {
@@ -86,7 +86,7 @@ stdout_is(sub { status($torrent) },
 | Completed    | 100.0%                                   |
 | Size         | 1.00GiB                                  |
 | Uploaded     | 10.00MiB                                 |
-| Ratio        | 0.01                                     |
+| Ratio        | 0.01 (1 in 1 minute and 41 seconds)      |
 +--------------+------------------------------------------+
 | Upload rate  | 0.00B/s                                  |
 | Peers        | Seeders:  0                              |
@@ -134,7 +134,7 @@ stdout_is(sub { status($torrent) },
 | Completed    | 100.0% (total: 50.0%)                    |
 | Size         | 1.00GiB (total: 2.00GiB)                 |
 | Uploaded     | 10.00MiB                                 |
-| Ratio        | 0.01                                     |
+| Ratio        | 0.01 (1 in 1 minute and 41 seconds)      |
 +--------------+------------------------------------------+
 | Upload rate  | 0.00B/s                                  |
 | Peers        | Seeders:  0                              |
@@ -182,7 +182,7 @@ stdout_is(sub { status($torrent) },
 | Size          | 1.00GiB                                  |
 | Downloaded    | 512.00MiB                                |
 | Uploaded      | 10.00MiB                                 |
-| Ratio         | 0.02                                     |
+| Ratio         | 0.02 (1 in 50 seconds)                   |
 +---------------+------------------------------------------+
 | Upload rate   | 0.00B/s                                  |
 | Download rate | 0.00B/s                                  |
@@ -233,7 +233,7 @@ stdout_is(sub { status($torrent) },
 | Size          | 1.00GiB (total: 2.00GiB)                 |
 | Downloaded    | 512.00MiB                                |
 | Uploaded      | 10.00MiB                                 |
-| Ratio         | 0.02                                     |
+| Ratio         | 0.02 (1 in 50 seconds)                   |
 +---------------+------------------------------------------+
 | Upload rate   | 0.00B/s                                  |
 | Download rate | 0.00B/s                                  |
@@ -283,7 +283,7 @@ stdout_is(sub { status($torrent) },
 | Size          | 1.00GiB                                           |
 | Downloaded    | 512.00MiB                                         |
 | Uploaded      | 10.00MiB                                          |
-| Ratio         | 0.02                                              |
+| Ratio         | 0.02 (1 in 50 seconds)                            |
 +---------------+---------------------------------------------------+
 | Upload rate   | 0.00B/s                                           |
 | Download rate | 512.00KiB/s                                       |
@@ -333,7 +333,7 @@ stdout_is(sub { status($torrent) },
 | Size          | 1.00GiB                                     |
 | Downloaded    | 512.00MiB                                   |
 | Uploaded      | 10.00MiB                                    |
-| Ratio         | 0.02                                        |
+| Ratio         | 0.02 (1 in 50 seconds)                      |
 +---------------+---------------------------------------------+
 | Upload rate   | 0.00B/s                                     |
 | Download rate | 0.98KiB/s                                   |
@@ -346,5 +346,105 @@ stdout_is(sub { status($torrent) },
 '---------------+---------------------------------------------'
 EOF
 	, 'half completed torrent status (rate between 0 and 1024B/s)'
+);
+
+$torrent = Transmission::Torrent->_create(
+	name => 'Example torrent',
+
+	id => 42,
+	hash_string => '1234567890abcdef1234567890abcdef12345678',
+	is_private => 'top secret',
+
+	size_when_done => 1024**3+1, # 1GiB
+	downloaded_ever => (1024**3+1)/2, # 512M
+	uploaded_ever =>   (1024**3+1)/2, # 512M
+
+	rate_download => 1000,
+	rate_upload => 0,
+	peers_getting_from_us => 0,
+	peers_sending_to_us => 1,
+
+	added_date => 0,
+	done_date => -1,
+);
+
+stdout_is(sub { status($torrent) },
+	<<EOF
+.-------------------------------------------------------------.
+|                       Example torrent                       |
++---------------+---------------------------------------------+
+| Key           | Value                                       |
++---------------+---------------------------------------------+
+| ID            | 42                                          |
+| Hash          | 1234567890abcdef1234567890abcdef12345678    |
+| Private       | yes                                         |
++---------------+---------------------------------------------+
+| Completed     | 50.0%                                       |
+| Size          | 1.00GiB                                     |
+| Downloaded    | 512.00MiB                                   |
+| Uploaded      | 512.00MiB                                   |
+| Ratio         | 1.00                                        |
++---------------+---------------------------------------------+
+| Upload rate   | 0.00B/s                                     |
+| Download rate | 0.98KiB/s                                   |
+| Peers         | Seeders:  1                                 |
+|               | Leechers: 0                                 |
++---------------+---------------------------------------------+
+| Added at      | 1970-01-01 00:00:00                         |
+| ETA           | 1970-01-07 05:07:50 (in 6 days and 5 hours) |
+| Left          | 512.00MiB                                   |
+'---------------+---------------------------------------------'
+EOF
+	, 'half completed torrent status, 1.0 ratio'
+);
+
+$torrent = Transmission::Torrent->_create(
+	name => 'Example torrent',
+
+	id => 42,
+	hash_string => '1234567890abcdef1234567890abcdef12345678',
+	is_private => 'top secret',
+
+	size_when_done => 1024**3+1, # 1GiB
+	downloaded_ever => 0,
+	uploaded_ever => 0,
+
+	rate_download => 0,
+	rate_upload => 0,
+	peers_getting_from_us => 0,
+	peers_sending_to_us => 1,
+
+	added_date => 0,
+	done_date => -1,
+);
+
+stdout_is(sub { status($torrent) },
+	<<EOF
+.----------------------------------------------------------.
+|                      Example torrent                     |
++---------------+------------------------------------------+
+| Key           | Value                                    |
++---------------+------------------------------------------+
+| ID            | 42                                       |
+| Hash          | 1234567890abcdef1234567890abcdef12345678 |
+| Private       | yes                                      |
++---------------+------------------------------------------+
+| Completed     | 0.0%                                     |
+| Size          | 1.00GiB                                  |
+| Downloaded    | 0.00B                                    |
+| Uploaded      | 0.00B                                    |
+| Ratio         | 0.00                                     |
++---------------+------------------------------------------+
+| Upload rate   | 0.00B/s                                  |
+| Download rate | 0.00B/s                                  |
+| Peers         | Seeders:  1                              |
+|               | Leechers: 0                              |
++---------------+------------------------------------------+
+| Added at      | 1970-01-01 00:00:00                      |
+| ETA           | Unknown                                  |
+| Left          | 1.00GiB                                  |
+'---------------+------------------------------------------'
+EOF
+	, 'torrent not started'
 );
 

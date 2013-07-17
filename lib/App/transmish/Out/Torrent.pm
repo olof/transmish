@@ -71,6 +71,16 @@ sub status {
 	my $left = $torrent->left_until_done;
 	$left = $torrent->size_when_done > 0 ? size($left) : 'Unknown';
 
+	my $time_to_even_ratio = _time_to_even_ratio(
+		$torrent->upload_ratio,
+		$torrent->added_date
+	);
+
+	my $ratio_str = $ratio;
+	$ratio_str = sprintf "%s (1 in %s)",
+		$ratio, duration($time_to_even_ratio)
+		if $ratio > 0 and $ratio < 1;
+
 	# FIXME: this should ideally be replaced by a template engine
 
 	my @information = (
@@ -82,7 +92,7 @@ sub status {
 		['Size', _gen_size($torrent)],
 		['Downloaded', size($torrent->downloaded_ever), bool(!$done)],
 		['Uploaded', size($torrent->uploaded_ever)],
-		['Ratio', $ratio],
+		['Ratio', $ratio_str],
 		['---'],
 		['Upload rate', rate($torrent->rate_upload)],
 		['Download rate', rate($torrent->rate_download), bool(!$done)],
@@ -185,6 +195,22 @@ sub _gen_size {
 	return sprintf "%s (total: %s)",
 		size($size),
 		size($tot_size);
+}
+
+sub _time_to_even_ratio {
+	my $ratio = shift;
+	my $start = shift;
+	my $now = time;
+
+	# In the rare case $start is $now, let's pretend it's not :-)
+	$now += 1 if $start == $now;
+
+	my $left = 1 - $ratio;
+	my $duration = $now - $start;
+	my $velocity = $ratio / $duration;
+
+	return unless $velocity;
+	return $left / $velocity;
 }
 
 =head1 COPYRIGHT
