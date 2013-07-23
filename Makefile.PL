@@ -13,7 +13,7 @@ WriteMakefile(
 		'LWP::UserAgent' => 0,
 		'Text::ASCIITable' => 0,
 		'Time::Duration' => 0,
-		'Transmission::Client' => 0.0603,
+		'Transmission::Client' => 0.0701,
 		'Test::Output' => 0,
 	},
 );
