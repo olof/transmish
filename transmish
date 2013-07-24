@@ -369,8 +369,12 @@ $attr->{attempted_completion_function} = \&gen_matches;
 my $out = $term->OUT // \*STDOUT;
 
 while(defined (my $row = $term->readline('> '))) {
+	$row =~ s/^\s*//;
 	$row =~ s/\s*$//;
 	next unless $row;
+
+	# FIXME: For some reason both the whitespace stripped $row as
+	# well as the non-stripped $row seem to get added to history.
 	$term->addhistory($row);
 
 	# Parse line with shell style quoting
