@@ -197,6 +197,8 @@ sub leechers {
 
 sub left_until_done {
 	my $self = shift;
+	# TODO: make the mock constructor take "bytes_on_disk"
+	return 0 if $self->percent_done == 1;
 	return $self->size_when_done - $self->downloaded_ever;
 }
 
@@ -242,6 +244,8 @@ sub peers_sending_to_us {
 
 sub percent_done {
 	my $self = shift;
+	return $self->{percent_done} if exists $self->{percent_done};
+	return 0 unless $self->size_when_done;
 	return $self->downloaded_ever / $self->size_when_done;
 }
 
@@ -307,7 +311,7 @@ sub times_completed {
 
 sub total_size {
 	my $self = shift;
-	return $self->{total_size};
+	return $self->{total_size} // $self->{size_when_done};
 }
 
 sub torrent_file {

@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use lib 't/lib';
 use Transmission::Torrent;
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::Output;
 
 BEGIN {
@@ -496,5 +496,54 @@ stdout_is(sub { status($torrent) },
 '---------------+------------------------------------------'
 EOF
 	, 'torrent not started'
+);
+
+$torrent = Transmission::Torrent->_create(
+	name => 'Example torrent',
+
+	id => 42,
+	hash_string => '1234567890abcdef1234567890abcdef12345678',
+	is_private => 'top secret',
+
+	size_when_done => 2*1024**3+1, # 2GiB
+	total_size => 2*1024**3+1, # 2GiB
+	downloaded_ever => 1024**3+1, # 1GiB
+	uploaded_ever => 10 * 1024**2+1, # 10MiB
+	percent_done => 1,
+
+	rate_download => 0,
+	rate_upload => 0,
+	peers_getting_from_us => 0,
+	peers_sending_to_us => 0,
+
+	added_date => 0,
+	done_date => 3600,
+);
+
+stdout_is(sub { status($torrent) },
+	<<EOF
+.---------------------------------------------------------.
+|                     Example torrent                     |
++--------------+------------------------------------------+
+| Key          | Value                                    |
++--------------+------------------------------------------+
+| ID           | 42                                       |
+| Hash         | 1234567890abcdef1234567890abcdef12345678 |
+| Private      | yes                                      |
++--------------+------------------------------------------+
+| Completed    | 100.0%                                   |
+| Size         | 2.00GiB (downloaded: 1.00GiB)            |
+| Uploaded     | 10.00MiB                                 |
+| Ratio        | 0.01 (1 in 1 minute and 41 seconds)      |
++--------------+------------------------------------------+
+| Upload rate  | 0.00B/s                                  |
+| Peers        | Seeders:  0                              |
+|              | Leechers: 0                              |
++--------------+------------------------------------------+
+| Added at     | 1970-01-01 00:00:00                      |
+| Completed at | 1970-01-01 01:00:00                      |
+'--------------+------------------------------------------'
+EOF
+	, 'completed torrent status (some data supplied out of bands)'
 );
 

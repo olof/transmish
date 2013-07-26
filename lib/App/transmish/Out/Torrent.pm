@@ -57,13 +57,10 @@ Transmission::Torrent object).
 sub status {
 	my $torrent = shift;
 
-	# If sizeWhenDone is 0, we can assume we have insufficient
-	# information (e.g. magnet links etc).
-	my $done = $torrent->size_when_done > 0 &&
-	           $torrent->left_until_done == 0;
-
 	my $size = $torrent->size_when_done;
 	$size = $size > 0 ? size($size) : 'Unknown';
+
+	my $done = _is_done($torrent);
 
 	my $ratio = $torrent->upload_ratio;
 	$ratio = $ratio >= 0 ? sprintf '%.2f', $ratio : 'Inf';
@@ -89,7 +86,7 @@ sub status {
 		['Private', bool($torrent->is_private)],
 		['---'],
 		['Completed', _gen_percent($torrent)],
-		['Size', _gen_size($torrent)],
+		['Size', _gen_size($torrent, $done)],
 		['Downloaded', size($torrent->downloaded_ever), bool(!$done)],
 		['Uploaded', size($torrent->uploaded_ever)],
 		['Ratio', $ratio_str],
@@ -170,31 +167,55 @@ sub _gen_peer_count {
 		$torrent->peers_getting_from_us;
 }
 
-sub _gen_percent {
+sub _get_total_percent {
 	my $torrent = shift;
+
 	my $tot_size = $torrent->total_size // $torrent->size_when_done;
-	return "unknown" unless $tot_size;
-	my $is_all = $torrent->size_when_done == $tot_size;
+	return unless $tot_size;
+
 	my $total_percent = $torrent->downloaded_ever / $tot_size;
 
-	return percentage($torrent->percent_done) if $is_all;
-	return sprintf "%s (total: %s)",
-		percentage($torrent->percent_done),
-		percentage($total_percent);
+	return $total_percent;
+}
+
+sub _is_all {
+	my $torrent = shift;
+	return $torrent->size_when_done == $torrent->total_size;
+}
+
+sub _is_done {
+	my $torrent = shift;
+
+	# If sizeWhenDone is 0, we can assume we have insufficient
+	# information (e.g. magnet links etc).
+
+	return $torrent->size_when_done > 0 && $torrent->left_until_done == 0;
+}
+
+sub _gen_percent {
+	my $torrent = shift;
+	my $got = $torrent->percent_done;
+	my $tot = _get_total_percent($torrent);
+
+	return 'unknown' unless defined $tot;
+	return percentage($got) if _is_all($torrent);
+	return sprintf "%s (total: %s)", percentage($got), percentage($tot);
 }
 
 sub _gen_size {
 	my $torrent = shift;
+	my $done = shift;
 	my $tot_size = $torrent->total_size;
+	my $downloaded = $torrent->downloaded_ever;
 	my $size = $torrent->size_when_done;
 
-	return size($size) unless
-		$tot_size and
-		$tot_size != $torrent->size_when_done;
+	return sprintf "%s (downloaded: %s)", size($size), size($downloaded) if
+		$done and $downloaded < $size;
 
 	return sprintf "%s (total: %s)",
-		size($size),
-		size($tot_size);
+		size($size), size($tot_size) if $size < $tot_size;
+
+	return size($size);
 }
 
 sub _time_to_even_ratio {
