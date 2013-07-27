@@ -21,6 +21,7 @@ t/02-out-client.t
 t/02-out-torrent.t
 t/02-out.t
 t/02-utils.t
+t/lib/Text/ASCIITable.pm
 t/lib/Transmission/Client.pm
 t/lib/Transmission/Stats.pm
 t/lib/Transmission/Torrent.pm

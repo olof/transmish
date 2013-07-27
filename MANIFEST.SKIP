@@ -8,3 +8,5 @@
 \.swp$
 \.bak$
 \.old$
+^.todo$
+^transmishrc_private$
