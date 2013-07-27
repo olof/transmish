@@ -1,4 +1,7 @@
 package Transmission::Torrent;
+use feature qw/say/;
+use warnings FATAL => 'all';
+use strict;
 
 # Test API
 
