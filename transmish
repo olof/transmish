@@ -75,7 +75,21 @@ cmd active => sub {
 
 cmd grep => sub {
 	my $ptrn = shift;
-	_list(sub { $_[0]->name =~ /$ptrn/i }, [], @_);
+
+	my $re;
+	eval { $re = qr/$ptrn/i };
+	if ($@) {
+		my $err = $@;
+
+		# This is a user error, no need to include line information
+		# Can this be done in a prettier way?
+		$err =~ s/ at $APP.*//s;
+
+		error "Invalid regexp: $err";
+		return;
+	}
+
+	_list(sub { $_[0]->name =~ /$re/ }, [], @_);
 };
 
 sub add_torrent_file {
