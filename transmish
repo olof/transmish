@@ -18,6 +18,7 @@ use App::transmish::Out::Client;
 use App::transmish::Out::Torrent;
 use App::transmish::Command;
 use App::transmish::Client;
+use App::transmish::list qw(torrent_list);
 use App::transmish::Utils qw/read_file strrange/;
 
 use Getopt::Long qw/:config gnu_getopt/;
@@ -37,18 +38,19 @@ sub _list {
 
 	# FIXME: Use getopt... And don't implement it here of all places...
 	my %flags = map { substr($_, 1) => 1 } grep(/^-/, @_);
-	my @ids = map { strrange($_) } grep { ! /^-/ } @_;
+	my @ids = grep { ! /^-/ } @_;
 
 	for (@ids) {
 		ymhfu "$_ isn't numeric; did you mean grep?" unless /^[0-9]+$/;
 	}
 
-	my @torrents = $client->read_torrents(
-		@ids ? (ids => [ @ids ]) : (),
-		fields => [qw(
-			name percentDone rateDownload
-			rateUpload uploadedEver
-		), @$fields],
+	my @torrents = torrent_list(
+		client => $client,
+		filter => $fun,
+		fields => [@$fields, qw(
+			name percentDone rateDownload rateUpload uploadedEver
+		)],
+		ids => [@ids],
 	);
 
 	my $printfun = sub { App::transmish::Out::Torrent::summary(@_) };
@@ -60,8 +62,7 @@ sub _list {
 			$torrent->name;
 	} if $flags{1} or $flags{oneline};
 
-	$printfun->($_) for
-		grep { $fun->($_) } @{$client->torrents};
+	$printfun->($_) for @torrents;
 	App::transmish::Out::Client::summary($client);
 };
 

@@ -98,7 +98,7 @@ sub add {
 	die("filename or metainfo is required when adding torrents")
 		unless $filename or $metainfo;
 
-	my $torrent = Transmission::Torrent->_create(
+	push @{$self->{torrents}}, Transmission::Torrent->_create(
 		id => $self->_next_id,
 		download_dir => $download_dir,
 		filename => $filename,
@@ -136,8 +136,20 @@ sub verify {
 sub read_torrents {
 	my $self = shift;
 	my $args = { @_ };
+	my @torrents = @{$self->{torrents}};
+	my @ret;
 
-	return @{$self->{torrents}};
+	if ($args->{ids}) {
+		for my $torrent (@{$self->{torrents}}) {
+			push @ret, $torrent if grep {
+				$_ == $torrent->id
+			} @{$args->{ids}};
+		}
+	} else {
+		@ret = @{$self->{torrents}}
+	}
+
+	return @ret;
 }
 
 sub rpc {
@@ -148,6 +160,12 @@ sub rpc {
 sub read_all {
 	my $self = shift;
 
+}
+
+# All arguments must be Transmission::Torrent objects
+sub _test_add {
+	my $self = shift;
+	push @{$self->{torrents}}, @_;
 }
 
 1;
