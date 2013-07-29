@@ -6,6 +6,7 @@ WriteMakefile(
 	VERSION_FROM => 'transmish',
 	ABSTRACT => 'transmission command line client',
 	EXE_FILES => ['transmish'],
+	MIN_PERL_VERSION => '5.10.0',
 
 	PREREQ_PM => {
 		'Config::Tiny' => 0,

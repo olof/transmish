@@ -12,9 +12,9 @@ App::transmish::Out - output related helper functions
 =cut
 
 package App::transmish::Out;
+use 5.10.0;
 use warnings;
 use strict;
-use feature qw/say/;
 
 our $VERSION = 0.1;
 my $DEBUG = 0;

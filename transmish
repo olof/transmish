@@ -6,9 +6,9 @@
 # provided the copyright notice are preserved. This file is
 # offered as-is, without any warranty.
 
+use 5.10.0;
 use warnings FATAL => 'all';
 use strict;
-use feature qw/say/;
 
 our $APP = 'transmish';
 our $VERSION = 0.1;

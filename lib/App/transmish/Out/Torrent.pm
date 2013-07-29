@@ -13,9 +13,9 @@ App::transmish::Out::Torrent - output torrent related information
 
 package App::transmish::Out::Torrent;
 
+use 5.10.0;
 use warnings FATAL => 'all';
 use strict;
-use feature qw/say/;
 
 our $VERSION = 0.1;
 

@@ -13,9 +13,9 @@ App::transmish::Out::Client - output client related information
 
 package App::transmish::Out::Client;
 
+use 5.10.0;
 use warnings FATAL => 'all';
 use strict;
-use feature qw/say/;
 
 our $VERSION = 0.1;
 

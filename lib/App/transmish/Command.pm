@@ -17,6 +17,7 @@ and invokes them when asked to.
 =cut
 
 package App::transmish::Command;
+use 5.10.0;
 use warnings;
 use strict;
 

@@ -13,6 +13,7 @@ App::transmish::Client - convenience wrapper around Transmission::Client
 
 package App::transmish::Client;
 
+use 5.10.0;
 use warnings;
 use strict;
 

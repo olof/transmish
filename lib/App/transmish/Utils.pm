@@ -12,9 +12,9 @@ App::transmish::Utils - various helper functions
 =cut
 
 package App::transmish::Utils;
+use 5.10.0;
 use warnings;
 use strict;
-use feature qw/say/;
 
 our $VERSION = 0.1;
 
