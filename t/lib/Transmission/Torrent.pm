@@ -24,6 +24,11 @@ sub _create {
 
 # API
 
+sub _id {
+	my $self = shift;
+	return $self->{id} = shift;
+}
+
 sub id {
 	my $self = shift;
 	return $self->{id};

@@ -16,16 +16,20 @@ sub new {
 
 	my %stats_args;
 	my @torrents;
-	
+	my $max_id = 0;
+
 	@torrents = @{$args{_torrents}} if exists $args{_torrents};
 	%stats_args = %{$args{_stats_args}} if exists $args{_stats_args};
 	delete $args{_stats_args};
+
+	$_->_id(++$max_id) for @torrents;
 
 	bless {
 		url => 'http://localhost:9091/transmission/rpc',
 		%args,
 		torrents => \@torrents,
 		stats => Transmission::Stats->new(%stats_args),
+		max_id => $max_id,
 	}, $class;
 }
 
