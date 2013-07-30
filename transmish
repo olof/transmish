@@ -41,7 +41,8 @@ sub _list {
 	my @ids = grep { ! /^-/ } @_;
 
 	for (@ids) {
-		ymhfu "$_ isn't numeric; did you mean grep?" unless /^[0-9]+$/;
+		ymhfu "$_ isn't numeric; did you mean grep?" unless
+			/^[0-9]+(?:-[0-9]+)?$/;
 	}
 
 	my @torrents = torrent_list(
