@@ -164,7 +164,9 @@ cmd rm => sub {
 
 cmd torrent => sub {
 	my $client = client or return;
-	my $index = shift or do {
+	my $index = shift;
+
+	if (not defined $index) {
 		error 'No id given';
 		return;
 	};
