@@ -242,12 +242,89 @@ subcmd 'torrent/files' => off => sub {
 	return 1;
 };
 
+sub valid_setting {
+	my $key = shift;
+
+	# FIXME; Very ugly. Transmission::Torrent should
+	#        probably export the available attributes
+	#        and their types...
+
+	return 'wo' if grep {$_ eq $key} qw(
+		location
+		peer_limit
+	);
+
+	return 'rw' if grep {$_ eq $key} qw(
+		bandwidth_priority
+		download_limit
+		download_limited
+		honors_session_limits
+		seed_ratio_limit
+		seed_ratio_mode
+		upload_limit
+		upload_limited
+		is_private
+	);
+
+	return 'ro' if grep {$_ eq $key} qw(
+		id
+		activity_date
+		added_date
+		comment
+		corrupt_ever
+		creator
+		date_created
+		desired_available
+		done_date
+		downloaded_ever
+		downloaders
+		error
+		error_string
+		eta
+		hash_str
+		have_unchecked
+		have_valid
+		leechers
+		left_until_done
+		manual_announce_time
+		max_connected_peers
+	); # .. etc
+	return;
+}
+
 subcmd torrent => set => sub {
 	my $client = shift;
 	my $torrent = shift;
-	my ($key, $val) = shift;
+	my ($key, $val) = @_;
 
-	error 'Not implemented yet. Live long and prosper in the meantime.';
+	if ($key) {
+		my $type = valid_setting($key);
+		if (not $type) {
+			error "Unknown setting '$key'";
+			return;
+		}
+
+		if (not defined $val and $type eq 'wo') {
+			error "$key is write only";
+			return;
+		}
+
+		if (defined $val and $type eq 'rw' or $type eq 'wo') {
+			$torrent->$key($val) or error $torrent->error;
+		} elsif (defined $val) {
+			error "$key is read only";
+		}
+
+		if ($type ne 'wo') {
+			say $torrent->$key();
+		}
+
+		return 1;
+	}
+
+	error "You currently have to select an attribute to show/change:";
+	error "  transmish <id> set download_dir";
+	error "  transmish <id> set upload_limit 10";
 };
 
 subcmd torrent => start => sub {
