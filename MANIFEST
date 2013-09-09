@@ -25,7 +25,6 @@ t/lib/Text/ASCIITable.pm
 t/lib/Transmission/Client.pm
 t/lib/Transmission/Stats.pm
 t/lib/Transmission/Torrent.pm
-t/lib/Transmission/Torrent/File.pm
 TODO
 transmish
 transmishrc
