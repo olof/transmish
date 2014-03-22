@@ -61,6 +61,7 @@ Get the hashref of configs.
 =cut
 
 sub config {
+	load unless $config;
 	return $config->{_};
 }
 
