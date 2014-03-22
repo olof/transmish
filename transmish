@@ -192,6 +192,7 @@ cmd torrent => sub {
 			peersGettingFromUs
 			totalSize
 			percentDone
+			downloadDir
 		)],
 	);
 	unless($torrent) {

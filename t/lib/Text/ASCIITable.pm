@@ -12,6 +12,7 @@ use JSON;
 # | ID           | 42                                       |
 # | Hash         | 1234567890abcdef1234567890abcdef12345678 |
 # | Private      | yes                                      |
+# | Download dir | /some/path/to/somewhere                  |
 # +--------------+------------------------------------------+
 # | Completed    | 100.0%                                   |
 # | Size         | 1.00GiB                                  |

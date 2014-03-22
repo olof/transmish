@@ -18,6 +18,7 @@ my %TORRENT_DEFAULTS_ALL = (
 	name => 'Example torrent',
 	id => '42',
 	hash_string => '1234567890abcdef1234567890abcdef12345678',
+	download_dir => '/var/www/isos',
 	is_private => 1,
 	added_date => 0,
 	done_date => -1,
@@ -97,6 +98,7 @@ sub _torrent_head_section {
 	       [ID => $torrent_data{id}],
 	       [Hash => $torrent_data{hash_string}],
 	       [Private => $torrent_data{is_private} ? 'yes' : 'no'],
+	       ['Download dir' => $torrent_data{download_dir}],
 	       ['### LINE ###'];
 }
 

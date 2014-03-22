@@ -84,6 +84,7 @@ sub status {
 		['ID', $torrent->id],
 		['Hash', $torrent->hash_string],
 		['Private', bool($torrent->is_private)],
+		['Download dir', $torrent->download_dir],
 		['---'],
 		['Completed', _gen_percent($torrent)],
 		['Size', _gen_size($torrent, $done)],
