@@ -13,7 +13,7 @@ App::transmish::Out::Client - output client related information
 
 package App::transmish::Out::Client;
 
-use 5.10.0;
+use 5.14.0;
 use warnings FATAL => 'all';
 use strict;
 

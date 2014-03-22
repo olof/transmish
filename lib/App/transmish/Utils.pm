@@ -12,7 +12,7 @@ App::transmish::Utils - various helper functions
 =cut
 
 package App::transmish::Utils;
-use 5.10.0;
+use 5.14.0;
 use warnings;
 use strict;
 

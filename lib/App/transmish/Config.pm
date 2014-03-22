@@ -12,7 +12,7 @@ App::transmish::Config - handle configuration
 =cut
 
 package App::transmish::Config;
-use 5.10.0;
+use 5.14.0;
 use warnings;
 use strict;
 
