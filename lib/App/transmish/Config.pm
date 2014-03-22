@@ -47,7 +47,7 @@ sub load {
 	if(-e $conffile) {
 		dbg 1, "Loading config from '$conffile'";
 		$config = Config::Tiny->read($conffile) or
-			crap "Could not load configs from $conffile";	
+			crap "Could not load configs from $conffile";
 		dumper $config->{_};
 	} else {
 		dbg 1, "No config found, using defaults.";
