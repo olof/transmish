@@ -2,30 +2,49 @@ package App::transmish::cmd::list;
 use 5.014;
 use warnings FATAL => 'all';
 
+use Getopt::Long qw(GetOptionsFromArray);
+
 use App::transmish::Command;
 use App::transmish::Client;
 use App::transmish::Out;
 use App::transmish::Utils qw(read_file);
 
+sub _add_torrent_common {
+	my $client = shift;
+	my $opts = shift;
+	my %args = @_;
+
+	$args{download_dir} = $opts->{'download-dir'} if
+		exists $opts->{'download-dir'};
+
+	return $client->add(%args);
+}
+
 sub _add_torrent_file {
 	my $client = shift;
+	my $opts = shift;
 	my $file = shift;
 
 	my %add_args;
 	$add_args{metainfo} = read_file($file);
 	$add_args{filename} = $file unless $add_args{metainfo};
-	return $client->add(%add_args);
+	return _add_torrent_common($client, $opts, %add_args);
 }
 
 sub _add_torrent_uri {
 	my $client = shift;
+	my $opts = shift;
 	my $uri = shift;
-	return $client->add(filename => $uri);
+	return _add_torrent_common($client, $opts, filename => $uri);
 }
 
 cmd add => sub {
 	my $client = client or return;
 	my %add_args;
+
+	GetOptionsFromArray(\@_, my $opts = {}, qw(
+		download-dir=s
+	)) or return;
 
 	for my $file (@_) {
 		my @files = glob($file);
@@ -33,7 +52,7 @@ cmd add => sub {
 		# If the glob fails, we give it directly to transmission,
 		# it could be a URI or a server local file.
 		unless (@files) {
-			if (_add_torrent_uri($client, $file)) {
+			if (_add_torrent_uri($client, $opts, $file)) {
 				say "Added URI '$file'";
 			} else {
 				printf "Failed to add URI '%s': %s'\n",
@@ -43,7 +62,7 @@ cmd add => sub {
 
 		# Anything in @files is a client local file.
 		for (@files) {
-			if (_add_torrent_file($client, $_)) {
+			if (_add_torrent_file($client, $opts, $_)) {
 				say "Added '$_'";
 			} else {
 				printf "Failed to add file '%s': %s\n",
