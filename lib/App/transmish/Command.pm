@@ -115,8 +115,10 @@ you can prepend to the user supplied arguments.
 
 sub alias_lookup {
 	my $alias = shift;
+	dbg 3, "Looking for alias $alias";
 	return unless exists $alias{$alias};
 	my $cmd = $alias{$alias};
+	dbg 2, "$alias is alias for $cmd";
 	return parse_line(qr/\s+/, 0, $cmd);
 }
 
@@ -141,11 +143,14 @@ subroutine being invoked.
 sub run {
 	my $cmd = shift;
 	my @args = @_;
-	my @alias = alias_lookup($cmd);
 
+	dbg 1, "Executing $cmd ", join(' ', @args);
+
+	my @alias = alias_lookup($cmd);
 	if (@alias) {
 		$cmd = shift @alias;
 		unshift @args, @alias;
+		dbg 1, "Resolving alias to $cmd ", join(' ', @args);
 	}
 
 	if(exists $fun{$cmd}) {
