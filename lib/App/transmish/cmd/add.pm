@@ -46,6 +46,11 @@ cmd add => sub {
 		download-dir=s
 	)) or return;
 
+	if (not @_) {
+		error "Not enough arguments. Need torrent path/URL";
+		return;
+	}
+
 	for my $file (@_) {
 		my @files = glob($file);
 
