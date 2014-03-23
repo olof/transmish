@@ -1,0 +1,90 @@
+package App::transmish::cmd::list;
+use 5.014;
+use warnings FATAL => 'all';
+
+use App::transmish::Command;
+use App::transmish::Client;
+use App::transmish::Out;
+use App::transmish::Utils qw(read_file);
+
+sub _add_torrent_file {
+	my $client = shift;
+	my $file = shift;
+
+	my %add_args;
+	$add_args{metainfo} = read_file($file);
+	$add_args{filename} = $file unless $add_args{metainfo};
+	return $client->add(%add_args);
+}
+
+sub _add_torrent_uri {
+	my $client = shift;
+	my $uri = shift;
+	return $client->add(filename => $uri);
+}
+
+cmd add => sub {
+	my $client = client or return;
+	my %add_args;
+
+	for my $file (@_) {
+		my @files = glob($file);
+
+		# If the glob fails, we give it directly to transmission,
+		# it could be a URI or a server local file.
+		unless (@files) {
+			if (_add_torrent_uri($client, $file)) {
+				say "Added URI '$file'";
+			} else {
+				printf "Failed to add URI '%s': %s'\n",
+					$file, $client->error;
+			}
+		}
+
+		# Anything in @files is a client local file.
+		for (@files) {
+			if (_add_torrent_file($client, $_)) {
+				say "Added '$_'";
+			} else {
+				printf "Failed to add file '%s': %s\n",
+					$_, $client->error;
+			}
+		}
+	}
+};
+
+cmd rm => sub {
+	my $client = client or return;
+	my $index = shift or do {
+		error "No id given";
+		return;
+	};
+
+	my $delete = 0;
+
+	# FIXME: do getopt on commands
+	# FIXME: you sure, dawg? [yN]
+	if($index eq '-d') {
+		$index = shift;
+		$delete = 1;
+	}
+
+	$client->remove(
+		ids => [$index],
+		delete_local_data => $delete,
+	) or error $client->error;
+};
+
+=head1 NAME
+
+App::transmish::cmd::add - add/remove torrents
+
+=head1 DESCRIPTION
+
+Add (add <path|url>) and remove torrents (rm <torrent id>).
+
+If the argument to add is a local file, that file is uploaded to
+the transmission host and added. Otherwise, the path is sent as is
+to transmission. This means that http URLs, magnet links and
+torrent files on the transmission host are all supported. For local
+files, glob expressions are also supported (add /tmp/*.torrent).
