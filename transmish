@@ -136,29 +136,6 @@ cmd help => sub {
 cmd quit => sub { exit 0 };
 alias q => 'quit';
 
-sub select_wanted {
-	my $client = shift;
-	my $torrent = shift;
-	my $wanted = shift;
-	my $pattern = shift;
-	my $descrf = "%s %s for download\n";
-	my $change = 0;
-
-	for my $file (
-		sort { $a->name cmp $b->name }
-		grep { $_->name =~ /$pattern/ }
-		@{$torrent->files}
-	) {
-		printf $descrf, $wanted ? 'Marking' : 'Unmarking', $file->name;
-		$file->wanted($wanted);
-		$change = 1;
-	}
-
-	return 1 unless $change;
-	$torrent->write_wanted or error $client->error;
-	return 1;
-}
-
 sub gen_matches {
 	my($text, $buf, $start, $end) = @_;
 

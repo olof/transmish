@@ -7,6 +7,29 @@ use App::transmish::Client;
 use App::transmish::Out;
 use App::transmish::Out::Torrent;
 
+sub _select_wanted {
+	my $client = shift;
+	my $torrent = shift;
+	my $wanted = shift;
+	my $pattern = shift;
+	my $descrf = "%s %s for download\n";
+	my $change = 0;
+
+	for my $file (
+		sort { $a->name cmp $b->name }
+		grep { $_->name =~ /$pattern/ }
+		@{$torrent->files}
+	) {
+		printf $descrf, $wanted ? 'Marking' : 'Unmarking', $file->name;
+		$file->wanted($wanted);
+		$change = 1;
+	}
+
+	return 1 unless $change;
+	$torrent->write_wanted or error $client->error;
+	return 1;
+}
+
 sub _valid_setting {
 	my $key = shift;
 
@@ -124,7 +147,7 @@ subcmd 'torrent/files' => on => sub {
 	my $torrent = shift;
 	my $pattern = shift;
 
-	select_wanted($client, $torrent, 1, $pattern ? qr/$pattern/ : qr/.*/);
+	_select_wanted($client, $torrent, 1, $pattern ? qr/$pattern/ : qr/.*/);
 	return 1;
 };
 
@@ -133,7 +156,7 @@ subcmd 'torrent/files' => off => sub {
 	my $torrent = shift;
 	my $pattern = shift;
 
-	select_wanted($client, $torrent, 0, $pattern ? qr/$pattern/ : qr/.*/);
+	_select_wanted($client, $torrent, 0, $pattern ? qr/$pattern/ : qr/.*/);
 	return 1;
 };
 
