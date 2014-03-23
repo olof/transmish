@@ -75,6 +75,8 @@ L<Transmission::Torrent> object as argument. If the subroutine returns
 true, the torrent will be part of the list of torrents that gets
 returned from torrent_list.
 
+=back
+
 =cut
 
 1;
