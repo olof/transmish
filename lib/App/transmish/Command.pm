@@ -28,6 +28,7 @@ our @ISA = 'Exporter';
 our @EXPORT = qw/cmd subcmd cmds alias run run_subcmd/;
 
 use App::transmish::Out;
+use App::transmish::Config;
 
 use Text::ParseWords;
 
@@ -120,6 +121,26 @@ sub alias_lookup {
 	my $cmd = $alias{$alias};
 	dbg 2, "$alias is alias for $cmd";
 	return parse_line(qr/\s+/, 0, $cmd);
+}
+
+=head2 load_user_aliases
+
+Load configured alias from the config object.
+
+=cut
+
+sub load_user_aliases {
+	my $config = config('aliases');
+
+	dbg 1, "Loading user aliases";
+
+	dumper $config;
+
+	for my $alias (keys %$config) {
+		my $cmd = $config->{$alias};
+		dbg 2, "Loading user alias $alias => $cmd";
+		alias($alias => $cmd);
+	}
 }
 
 =head2 cmds

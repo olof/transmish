@@ -104,6 +104,7 @@ crap "No non-interactive support yet" unless is_interactive;
 
 App::transmish::Out::dbglvl($opts->{verbose});
 App::transmish::Config::load($opts->{config});
+App::transmish::Command::load_user_aliases;
 $term = Term::ReadLine->new('transmish');
 
 my $attr = $term->Attribs;

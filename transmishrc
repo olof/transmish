@@ -2,3 +2,7 @@
 url = http://localhost:9091/transmission/rpc
 username = username
 password = password
+
+[aliases]
+tv = add --download-dir /share/incoming/tv
+movie = add --download-dir /share/incoming/movie
