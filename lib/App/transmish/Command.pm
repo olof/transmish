@@ -127,7 +127,7 @@ Returns a list of the names of all registered commands or aliases.
 =cut
 
 sub cmds {
-	return keys %fun;
+	return keys %fun, keys %alias;
 }
 
 =head2 run
