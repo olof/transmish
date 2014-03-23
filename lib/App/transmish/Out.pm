@@ -66,7 +66,7 @@ sub dbg {
 
 =head2 crap
 
-Like die or crap, but use our "error" routine. Exits with 1 after
+Like die or carp, but use our "error" routine. Exits with 1 after
 printing the error message passed to it.
 
 =cut
