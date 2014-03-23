@@ -29,8 +29,11 @@ our @EXPORT = qw/cmd subcmd cmds alias run run_subcmd/;
 
 use App::transmish::Out;
 
+use Text::ParseWords;
+
 my %fun; # fun fun fun!
 my %subfun; # not as fun
+my %alias; # has nothing to with fun :(
 
 =head1 SUBROUTINES
 
@@ -79,18 +82,42 @@ sub subcmd {
 
 =head2 alias
 
-Alias a command to a already existing one. Takes the name of the
-alias and the name of the existing command:
+Alias a command to an existing one, possibly with preset flags. The
+alias concept is very similar in behavior to that of bash et al.
+Takes the name of the alias and the value of the alias:
 
- alias xmpl => 'example';
+ alias xmpl => 'example --foo';
+
+You can later call from the command line like:
+
+ xmpl        # resulting in example --foo
+
+or
+
+ xmpl --bar  # resulting in example --foo --bar
 
 =cut
 
 sub alias {
 	my $alias = shift;
-	my $cname = shift;
+	my $cmd = shift;
 
-	$fun{$alias} = $fun{$cname};
+	$alias{$alias} = $cmd;
+}
+
+=head2 alias_lookup
+
+Look up definition for alias. If the alias contains arguments,
+they will be split, and you will get a list of arguments that
+you can prepend to the user supplied arguments.
+
+=cut
+
+sub alias_lookup {
+	my $alias = shift;
+	return unless exists $alias{$alias};
+	my $cmd = $alias{$alias};
+	return parse_line(qr/\s+/, 0, $cmd);
 }
 
 =head2 cmds
@@ -113,8 +140,16 @@ subroutine being invoked.
 
 sub run {
 	my $cmd = shift;
+	my @args = @_;
+	my @alias = alias_lookup($cmd);
+
+	if (@alias) {
+		$cmd = shift @alias;
+		unshift @args, @alias;
+	}
+
 	if(exists $fun{$cmd}) {
-		$fun{$cmd}->(@_);
+		$fun{$cmd}->(@args);
 	} else {
 		error "No such command '$cmd'";
 	}
