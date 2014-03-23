@@ -73,3 +73,31 @@ cmd grep => sub {
 	_list(sub { $_[0]->name =~ /$re/ }, [], @_);
 };
 
+=head1 NAME
+
+App::transmish::cmd::list - list torrents commands
+
+=head1 DESCRIPTION
+
+Various commands for listing torrents:
+
+=over
+
+=item * list [ids]
+
+=item * active
+
+=item * grep <regexp>
+
+=back
+
+=head2 Torrent ID specification
+
+The torrent ID is the transmission per session ID. It isn't
+persistent and may be changed when restarting the transmission
+daemon.
+
+Commands like the list command supports listing multiple IDs,
+either as an explicit list (list 1 2 3) or using a list syntax
+(list 1-3).
+

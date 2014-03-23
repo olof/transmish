@@ -208,3 +208,12 @@ subcmd torrent => rm => sub {
 	}
 };
 
+=head1 NAME
+
+App::transmish::cmd::torrent - show and manipulate a single torrent
+
+=head1 DESCRIPTION
+
+The torrent command is used to show current status of a torrent and
+to manipulate various things, including starting/stopping, selecting
+files to download and moving the torrent on the transmission host.
