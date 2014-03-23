@@ -61,8 +61,9 @@ Get the hashref of configs.
 =cut
 
 sub config {
+	my $section = shift // '_';
 	load unless $config;
-	return $config->{_};
+	return $config->{$section};
 }
 
 =head2 COPYRIGHT
