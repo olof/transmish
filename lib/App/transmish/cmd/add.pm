@@ -38,13 +38,11 @@ sub _add_torrent_uri {
 	return _add_torrent_common($client, $opts, filename => $uri);
 }
 
+options add => [qw(download-dir=s)];
 cmd add => sub {
 	my $client = client or return;
+	my $opts = shift;
 	my %add_args;
-
-	GetOptionsFromArray(\@_, my $opts = {}, qw(
-		download-dir=s
-	)) or return;
 
 	if (not @_) {
 		error "Not enough arguments. Need torrent path/URL";
@@ -77,25 +75,18 @@ cmd add => sub {
 	}
 };
 
+options rm => [qw(delete)];
 cmd rm => sub {
 	my $client = client or return;
+	my $opts = shift;
 	my $index = shift or do {
 		error "No id given";
 		return;
 	};
 
-	my $delete = 0;
-
-	# FIXME: do getopt on commands
-	# FIXME: you sure, dawg? [yN]
-	if($index eq '-d') {
-		$index = shift;
-		$delete = 1;
-	}
-
 	$client->remove(
 		ids => [$index],
-		delete_local_data => $delete,
+		delete_local_data => $opts->{delete},
 	) or error $client->error;
 };
 

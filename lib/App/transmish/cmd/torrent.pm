@@ -23,6 +23,7 @@ sub _select_wanted {
 	);
 
 	my $pattern = qr/$args{pattern}/;
+
 	my $change = 0;
 	for my $file (sort { $a->name cmp $b->name } @{$torrent->files}) {
 		my $wanted = $args{miss};
@@ -36,7 +37,7 @@ sub _select_wanted {
 	}
 
 	return 1 unless $change;
-	$torrent->write_wanted or error $client->error;
+	$torrent->write_wanted or error $torrent->error_string;
 	return 1;
 }
 
@@ -189,6 +190,15 @@ subcmd 'torrent/files' => only => sub {
 	return 1;
 };
 
+subcmd 'torrent/files' => only => sub {
+	my $client = shift;
+	my $torrent = shift;
+	my $pattern = shift;
+
+	_select_wanted($client, $torrent, 0, $pattern ? qr/$pattern/ : qr/.*/);
+	return 1;
+};
+
 subcmd torrent => set => sub {
 	my $client = shift;
 	my $torrent = shift;
@@ -247,17 +257,13 @@ subcmd torrent => move => sub {
 	error "Could not move torrent: ", $torrent->error_string;
 };
 
+options 'torrent/rm' => [qw(delete)];
 subcmd torrent => rm => sub {
 	my $client = shift;
+	my $opts = shift;
 	my $torrent = shift;
-	my $delete = shift;
 
-	# FIXME: Ugly, needs some getopt!
-	if ($delete and $delete eq '-d') {
-		run 'rm', '-d', $torrent->id;
-	} else {
-		run 'rm', $torrent->id;
-	}
+	run 'rm', $opts->{delete} ? '-d' : (), $torrent->id;
 };
 
 =head1 NAME

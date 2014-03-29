@@ -14,10 +14,11 @@ sub _list {
 	my $client = client or return;
 	my $fun = shift;
 	my $fields = shift;
+	my $opts = shift;
 
 	# FIXME: Use getopt... And don't implement it here of all places...
 	my %flags = map { substr($_, 1) => 1 } grep(/^-/, @_);
-	my @ids = grep { ! /^-/ } @_;
+	my @ids = @_;
 
 	for (@ids) {
 		ymhfu "$_ isn't numeric; did you mean grep?" unless
@@ -40,21 +41,26 @@ sub _list {
 			$torrent->id,
 			int($torrent->percent_done*100),
 			$torrent->name;
-	} if $flags{1} or $flags{oneline};
+	} if $opts->{oneline};
 
 	$printfun->($_) for @torrents;
 	App::transmish::Out::Client::summary($client);
 };
 
+# -1 for oneline output.
+options list => [qw(oneline|1)];
 cmd list => sub {
 	_list(sub { 1 }, [], @_);
 };
 
+options list => [qw(oneline|1)];
 cmd active => sub {
 	_list(sub { $_[0]->peers_connected > 0 }, ['peersConnected'], @_);
 };
 
+options list => [qw(oneline|1)];
 cmd grep => sub {
+	my $opts = shift;
 	my $ptrn = shift;
 
 	my $re;
@@ -70,7 +76,7 @@ cmd grep => sub {
 		return;
 	}
 
-	_list(sub { $_[0]->name =~ /$re/ }, [], @_);
+	_list(sub { $_[0]->name =~ /$re/ }, [], $opts, @_);
 };
 
 =head1 NAME

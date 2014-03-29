@@ -25,7 +25,7 @@ our $VERSION = 0.1;
 
 require Exporter;
 our @ISA = 'Exporter';
-our @EXPORT = qw/cmd subcmd cmds alias run run_subcmd/;
+our @EXPORT = qw/cmd subcmd options cmds alias run run_subcmd/;
 
 use App::transmish::Out;
 use App::transmish::Config;
@@ -35,6 +35,8 @@ use Text::ParseWords;
 my %fun; # fun fun fun!
 my %subfun; # not as fun
 my %alias; # has nothing to with fun :(
+
+my %options;
 
 =head1 SUBROUTINES
 
@@ -79,6 +81,40 @@ sub subcmd {
 	my $fun = shift;
 
 	$subfun{$parent}->{$name} = $fun;
+}
+
+=head2 options
+
+ options 'cmd' => [qw(foo=s bar)] => {
+   foo => \&foo_flag_sub,
+   bar => 1,
+ };
+
+Associate options to command. The first (required) argument is a
+Getopt::Long compatible option spec as an array ref, while the
+second (optional) argument is a hash ref of default values (refer
+to the manual of Getopt::Long for how it's used).
+
+To specify options for subcommands, separate the parent command(s)
+with /, e.g:
+
+  options 'torrent/show' => [qw(verbose)];
+
+If you register options for a command, that command will receive
+an additional argument after the $client argument with the
+options hashref.
+
+=cut
+
+sub options {
+	my $cmd = shift;
+	my $optspec = shift;
+	my $defaults = shift // {};
+
+	$options{$cmd} = {
+		obj => $defaults,
+		spec => $optspec,
+	};
 }
 
 =head2 alias
@@ -174,11 +210,20 @@ sub run {
 		dbg 1, "Resolving alias to $cmd ", join(' ', @args);
 	}
 
-	if(exists $fun{$cmd}) {
-		$fun{$cmd}->(@args);
-	} else {
+	if(not exists $fun{$cmd}) {
 		error "No such command '$cmd'";
+		return;
 	}
+
+	if (exists $options{$cmd}) {
+		my $opts = $options{$cmd}->{defaults};
+		GetOptionsFromArray(
+			\@args, $opts, $options{$cmd}->{optspec}
+		) or return;
+		unshift @args, $opts;
+	}
+
+	$fun{$cmd}->(@args);
 }
 
 =head2 run_subcmd
