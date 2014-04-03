@@ -2,7 +2,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 10;
+use Test::More tests => 13;
 BEGIN {
 	use_ok 'App::transmish::Out';
 };
@@ -23,19 +23,47 @@ sub _scalar_stdout {
 	return $stdout;
 }
 
-sub _error { _scalar_stdout(\&error, @_) }
-sub _errorf { _scalar_stdout(\&errorf, @_) }
-sub _ymhfu { _scalar_stdout(\&ymhfu, @_) }
-sub _ymhfuf { _scalar_stdout(\&ymhfuf, @_) }
-sub _info { _scalar_stdout(\&info, @_) }
-sub _infof { _scalar_stdout(\&infof, @_) }
+sub test_out {
+	my $sub = shift;
+	my $prefix = shift;
 
-is _error("foo"), "Error: foo\n";
-is _errorf("%s: %d", "adams", "42"), "Error: adams: 42\n";
-is _error("foo", "bar"), "Error: foo bar\n";
-is _ymhfu("foo"), "Warning: foo\n";
-is _ymhfu("foo", "bar"), "Warning: foo bar\n";
-is _ymhfuf("%s", "barbaz"), "Warning: barbaz\n";
-is _info("foo"), "foo\n";
-is _info("foo", "bar"), "foo bar\n";
-is _infof("%s", "barbaz"), "barbaz\n";
+	my $wrapper = sub {
+		_scalar_stdout(eval("\\&$sub"), @_)
+	};
+
+	for (
+		{
+			i => ['foo'],
+			o => 'foo'
+		}, {
+			i => ['foo', 'bar'],
+			o => 'foo bar'
+		}
+	) {
+		my $ref_str = $_->{o};
+		$ref_str = "$prefix: $ref_str" if $prefix;
+		is $wrapper->(@{$_->{i}}), "$ref_str\n";
+	}
+
+	$wrapper = sub {
+		_scalar_stdout(eval("\\&${sub}f"), @_)
+	};
+
+	for (
+		{
+			i => ['%s', 'foo'],
+			o => 'foo'
+		}, {
+			i => ['%s: %d', 'foo', 42],
+			o => 'foo: 42'
+		}
+	) {
+		my $ref_str = $_->{o};
+		$ref_str = "$prefix: $ref_str" if $prefix;
+		is $wrapper->(@{$_->{i}}), "$ref_str\n";
+	}
+}
+
+test_out('info', '');
+test_out('error', 'Error');
+test_out('ymhfu', 'Warning');
