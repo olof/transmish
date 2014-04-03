@@ -21,7 +21,9 @@ my $DEBUG = 0;
 
 require Exporter;
 our @ISA = 'Exporter';
-our @EXPORT = qw/error errorf ymhfu ymhfuf dbg dbgf crap crapf dumper/;
+our @EXPORT = qw/
+	info infof error errorf ymhfu ymhfuf dbg dbgf crap crapf dumper
+/;
 
 use Data::Dumper;
 
@@ -29,6 +31,22 @@ use Data::Dumper;
 
 For each of these functions except for dumper, there exists a variant
 with an f suffix; these use the printf format string syntax.
+
+=head2 info, infof
+
+The subroutine prints informational messages, without a prefix. This
+subroutine should be used for any output you may need to use. This
+makes it simple to mock away output generation in tests.
+
+=cut
+
+sub info {
+	say "@_";
+}
+
+sub infof {
+	info sprintf shift, @_;
+}
 
 =head2 error, errorf
 
