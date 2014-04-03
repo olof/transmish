@@ -29,7 +29,7 @@ sub _select_wanted {
 		$wanted = $args{match} if $file->name =~ /$pattern/;
 		next unless defined $wanted;
 
-		printf "%s %s for download\n",
+		infof "%s %s for download",
 			$wanted ? 'Marking' : 'Unmarking', $file->name;
 		$file->wanted($wanted);
 		$change = 1;
