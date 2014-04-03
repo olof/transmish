@@ -2,14 +2,12 @@
 use warnings;
 use strict;
 
-use Test::More tests => 5;
+use Test::More tests => 7;
 BEGIN {
 	use_ok 'App::transmish::Out';
 };
 
-BEGIN {
-	*CORE::GLOBAL::say = sub { return "@_" };
-}
+use Data::Dumper;
 
 # We want to override functions writing to the default filehandle
 # (STDOUT), but as print can't be overriden, we resort to making
@@ -26,9 +24,13 @@ sub _scalar_stdout {
 }
 
 sub _error { _scalar_stdout(\&error, @_) }
+sub _errorf { _scalar_stdout(\&errorf, @_) }
 sub _ymhfu { _scalar_stdout(\&ymhfu, @_) }
+sub _ymhfuf { _scalar_stdout(\&ymhfuf, @_) }
 
 is _error("foo"), "Error: foo\n";
+is _errorf("%s: %d", "adams", "42"), "Error: adams: 42\n";
 is _error("foo", "bar"), "Error: foo bar\n";
 is _ymhfu("foo"), "Warning: foo\n";
 is _ymhfu("foo", "bar"), "Warning: foo bar\n";
+is _ymhfuf("%s", "barbaz"), "Warning: barbaz\n";

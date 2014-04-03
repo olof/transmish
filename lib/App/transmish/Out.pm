@@ -21,13 +21,16 @@ my $DEBUG = 0;
 
 require Exporter;
 our @ISA = 'Exporter';
-our @EXPORT = qw/error ymhfu dbg crap dumper/;
+our @EXPORT = qw/error errorf ymhfu ymhfuf dbg dbgf crap crapf dumper/;
 
 use Data::Dumper;
 
 =head1 SUBROUTINES
 
-=head2 error
+For each of these functions except for dumper, there exists a variant
+with an f suffix; these use the printf format string syntax.
+
+=head2 error, errorf
 
 Print an error message. The output is prefixed with "Error: " and a
 newline is appended.
@@ -38,7 +41,14 @@ sub error {
 	say "Error: @_";
 }
 
-=head2 ymhfu
+sub errorf {
+	# printf @_ does what i want it to do but
+	# sprintf @_ just gives me the number of elements
+	# in @_.
+	error sprintf shift, @_;
+}
+
+=head2 ymhfu, ymhfuf
 
 Print a warning message. The subroutine name is an acronym for "you
 may have fucked up", credit for the awesome name goes to patogen.
@@ -49,7 +59,11 @@ sub ymhfu {
 	say "Warning: @_";
 }
 
-=head2 dbg
+sub ymhfuf {
+	ymhfu sprintf shift, @_;
+}
+
+=head2 dbg, dbgf
 
 Print a debug message if the debug level is above the debug message
 level. The first argument is the debug level, a numeric value that
@@ -64,7 +78,12 @@ sub dbg {
 	say "Debug: @_" unless $DEBUG < $level;
 }
 
-=head2 crap
+sub dbgf {
+	my $lvl = shift;
+	dbg $lvl, sprintf shift, @_;
+}
+
+=head2 crap, crapf
 
 Like die or carp, but use our "error" routine. Exits with 1 after
 printing the error message passed to it.
@@ -74,6 +93,10 @@ printing the error message passed to it.
 sub crap {
 	error @_;
 	exit 1;
+}
+
+sub crapf {
+	crap sprintf shift, @_;
 }
 
 =head2 dumper
