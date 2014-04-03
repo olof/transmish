@@ -7,20 +7,30 @@ use App::transmish::Client;
 use App::transmish::Out;
 use App::transmish::Out::Torrent;
 
+# _select_wanted takes $client, $torrent, %args. %args can
+# contain the keys miss, match and pattern. The pattern key
+# is required and is a regular expression that will be
+# applied to the filenames contained in the torrent. If a
+# file is match, the 'match' key decides if it should be
+# marked for download (a true value), unmarked a false value
+# or if no action should be taken (undef, the default). The
+# same goes for 'miss'.
 sub _select_wanted {
 	my $client = shift;
 	my $torrent = shift;
-	my $wanted = shift;
-	my $pattern = shift;
-	my $descrf = "%s %s for download\n";
-	my $change = 0;
+	my %args = (
+		@_,
+	);
 
-	for my $file (
-		sort { $a->name cmp $b->name }
-		grep { $_->name =~ /$pattern/ }
-		@{$torrent->files}
-	) {
-		printf $descrf, $wanted ? 'Marking' : 'Unmarking', $file->name;
+	my $pattern = qr/$args{pattern}/;
+	my $change = 0;
+	for my $file (sort { $a->name cmp $b->name } @{$torrent->files}) {
+		my $wanted = $args{miss};
+		$wanted = $args{match} if $file->name =~ /$pattern/;
+		next unless defined $wanted;
+
+		printf "%s %s for download\n",
+			$wanted ? 'Marking' : 'Unmarking', $file->name;
 		$file->wanted($wanted);
 		$change = 1;
 	}
@@ -147,7 +157,10 @@ subcmd 'torrent/files' => on => sub {
 	my $torrent = shift;
 	my $pattern = shift;
 
-	_select_wanted($client, $torrent, 1, $pattern ? qr/$pattern/ : qr/.*/);
+	_select_wanted($client, $torrent,
+		pattern => $pattern ? qr/$pattern/ : qr/.*/,
+		match => 1
+	);
 	return 1;
 };
 
@@ -156,7 +169,23 @@ subcmd 'torrent/files' => off => sub {
 	my $torrent = shift;
 	my $pattern = shift;
 
-	_select_wanted($client, $torrent, 0, $pattern ? qr/$pattern/ : qr/.*/);
+	_select_wanted($client, $torrent,
+		pattern => $pattern ? qr/$pattern/ : qr/.*/,
+		match => 0
+	);
+	return 1;
+};
+
+subcmd 'torrent/files' => only => sub {
+	my $client = shift;
+	my $torrent = shift;
+	my $pattern = shift;
+
+	_select_wanted($client, $torrent,
+		pattern => $pattern ? qr/$pattern/ : qr/.*/,
+		match => 1,
+		miss => 0
+	);
 	return 1;
 };
 
