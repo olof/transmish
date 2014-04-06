@@ -33,9 +33,6 @@ sub wanted {
 
 package main;
 
-# Current test data.
-our $CURRENT;
-
 use Test::More;
 use List::MoreUtils qw(pairwise);
 BEGIN {
