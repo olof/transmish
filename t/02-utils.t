@@ -5,9 +5,8 @@ use strict;
 use Test::More;
 use App::transmish::Utils
 	qw/
-		rate size date bool percentage
-		is_http_uri read_file http_file
-		strrange
+		rate size sizef size_si date bool percentage percentagef
+		is_http_uri read_file http_file strrange
 	/
 ;
 
@@ -22,12 +21,21 @@ my @tests = (
 	['size(1024**5+1)', '1.00PiB'],
 	['size(1024**6+1)', '1024.00PiB'],
 
+	['sizef("d", 1024**6+1)', '1024PiB'],
+	['sizef(".3f", 1024**6+1)', '1024.000PiB'],
+
+	['join(",", size_si(1024**3))', '1024,M'],
+	['join(",", size_si(1024**3-1024**2/2))', '1023.5,M'],
+
 	['rate(0)', '0.00B/s'],
 	['rate(1)', '0.00KiB/s'],
 	['rate(512)', '0.50KiB/s'],
 	['rate(1024)', '1.00KiB/s'],
 	['rate(1025)', '1.00KiB/s'],
 	['rate(1024**2+1)', '1.00MiB/s'],
+
+	['percentage(10/100)', '10.0%'],
+	['percentagef("d", 10/100)', '10%'],
 
 	['date(0)', '1970-01-01 00:00:00'],
 	['date(1234567890)', '2009-02-13 23:31:30'],
