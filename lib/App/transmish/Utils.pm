@@ -26,7 +26,7 @@ use LWP::UserAgent;
 
 our @ISA = 'Exporter';
 our @EXPORT_OK = qw/
-	rate size sizef size_si date bool percentage is_http_uri
+	rate size sizef size_si date bool percentage percentagef is_http_uri
 	read_file http_file strrange
 /;
 
@@ -136,15 +136,26 @@ sub bool {
 	return $val ? 'yes' : 'no';
 }
 
-=head2 percentage
+=head2 percentage, percentagef
 
-Convert a fraction to a percentage.
+Convert a fraction to a percentage. percentage returns a
+string with one decimal point. percentagef expects a single
+format specifier, just like accepted by printf:
+
+  percentage(10/100) # 10.0%
+  percentagef('d', 10/100) # 10%
+  percentagef('.5f', 10/100) # 10.000%
 
 =cut
 
 sub percentage {
+	percentagef(".1f", shift);
+}
+
+sub percentagef {
+	my $f = shift;
 	my $p = shift;
-	return sprintf "%.1f%%", $p*100;
+	return sprintf "%$f%%", $p*100;
 }
 
 =head2 strrange
