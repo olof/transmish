@@ -23,7 +23,9 @@ require Exporter;
 our @ISA = 'Exporter';
 our @EXPORT_OK = qw/summary status files/;
 
-use App::transmish::Utils qw/percentage rate size date bool/;
+use App::transmish::Utils qw(
+	percentage percentagef rate size sizef size_si date bool
+);
 use Text::ASCIITable;
 use Time::Duration;
 
@@ -134,14 +136,72 @@ be downloaded.
 
 sub files {
 	my $torrent = shift;
+	my $prefix = shift // $torrent->name;
+	my $match = 0;
+	my %file_comp;
+	my %files;
 
-	say $torrent->name;
-	say '-'x70;
-	printf "%-3s | %6s | %-3s | %s (%s)\n", 'id', '%', 'on', 'name', 'size';
-	say '-'x70;
+	my $dir = "$prefix/";
+	$dir = $torrent->name . "/$prefix" unless $torrent->name eq $prefix;
+
+	$prefix =~ s|^\.\.\./||;
+	$prefix =~ s|/$||;
+
+	# TODO Calculate recursive size and percent done
+
 	for my $file (sort {$a->name cmp $b->name} @{$torrent->files}) {
-		_file_print($file->id, $file->name, $file->length,
-		            $file->bytes_completed, $file->wanted);
+		my $n = $file->name;
+		my $m = $n =~ s|
+			^(?:[^/]+/)?\Q$prefix/\E([^/]+/?).*
+		|.../$1|x;
+
+		$match |= $m;
+
+		if (not exists $file_comp{$n}) {
+			$file_comp{$n} = {
+				wanted => $file->wanted ? '*' : ' ',
+				match => $m,
+				size => $file->length,
+				done => $file->bytes_completed,
+			};
+		} else {
+			$file_comp{$n}->{wanted} = '/' if
+				($file->wanted and
+				 $file_comp{$n}->{wanted} ne '*'
+				) or (
+				 not $file->wanted and
+				 $file_comp{$n}->{wanted} ne ' ');
+
+			$file_comp{$n}->{size} += $file->length;
+			$file_comp{$n}->{done} += $file->bytes_completed;
+		}
+	};
+
+	if (not $match) {
+		say "no such file: $prefix";
+		return;
+	}
+
+	say $dir;
+	say '-'x70;
+	say "[?]  size [   %]";
+	for (grep { $file_comp{$_}->{match} }
+	     sort { $a cmp $b } keys %file_comp) {
+		my ($size, $si) = size_si($file_comp{$_}->{size});
+
+		# if the number of integer digits of the size exceeds 2, we
+		# skip the decimal point.
+		my $siz_fmt = '.2f';
+		$siz_fmt = '.1f' if length(sprintf '%d', $size) > 1;
+		$siz_fmt = 'd' if length(sprintf '%d', $size) > 2;
+
+		printf "[%s] %5s [%4s] %s\n",
+			$file_comp{$_}->{wanted},
+			sprintf("%$siz_fmt%s", $size, $si),
+			percentagef('d',
+				$file_comp{$_}->{done}/$file_comp{$_}->{size}
+			),
+			$_;
 	}
 	say '-'x70;
 }
