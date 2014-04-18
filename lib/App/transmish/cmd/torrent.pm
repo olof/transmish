@@ -148,7 +148,7 @@ subcmd torrent => files => sub {
 subcmd 'torrent/files' => show => sub {
 	my $client = shift;
 	my $torrent = shift;
-	App::transmish::Out::Torrent::files($torrent);
+	App::transmish::Out::Torrent::files($torrent, @_);
 	return 1;
 };
 
