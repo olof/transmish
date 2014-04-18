@@ -26,7 +26,7 @@ use LWP::UserAgent;
 
 our @ISA = 'Exporter';
 our @EXPORT_OK = qw/
-	rate size date bool percentage is_http_uri
+	rate size sizef size_si date bool percentage is_http_uri
 	read_file http_file strrange
 /;
 
@@ -47,7 +47,7 @@ sub rate {
 	return size(shift) . "/s";
 }
 
-=head2 size
+=head2 size, sizef
 
 Convert number of bytes to the greatest possible SI prefixed
 number of bytes, and append this to the value and return it
@@ -58,23 +58,57 @@ of a KiB for usability reasons (this function is used to
 present rates, and it can be confusing when a rate jumps
 from 1KiB/s to 1000B/s).
 
+size returns a string with two decimal points. sizef expects
+a single format specifier, just like accepted by printf:
+
+  size(1024**2)      # 1.00MiB
+  size('d', 1024**2) # 1MiB
+  percentagef('.5f', 1024**2) # 1.0000MiB
+
 =cut
 
 sub size {
+	return sizef('.2f', shift);
+}
+
+sub sizef {
+	my $fmt = shift;
 	my $n = shift;
-	my $i = -1;
-	my @si = qw/KiB MiB GiB TiB PiB/;
 
-	return '0.00B' unless $n;
-	return sprintf '%.2fKiB', $n/1024 if $n <= 1024;
+	my ($size, $unit) = size_si($n);
 
-	while($n > 1024 and $i < @si) {
-		$n /= 1024;
-		++$i;
+	if ($unit eq '' and $size > 0) {
+		$unit = 'K';
+		$size /= 1024;
 	}
 
-	$n = sprintf "%.2f", $n;
-	return $n . $si[$i];
+	$unit .= 'i' if $unit;
+	$unit .= 'B';
+
+	return sprintf "%$fmt%s", $size, $unit;
+}
+
+=head2 size_si
+
+The size_si function returns, given a size in bytes, a tuple of
+size and SI prefix:
+
+ size_si(1) # returns (1, '')
+ size_si(1024**2) # returns (1, M)
+
+=cut
+
+sub size_si {
+	my $n = shift;
+
+	my $sufix = '';
+	my @si = qw(K M G T P);
+	while($n > 1024 and @si) {
+		$n /= 1024;
+		$sufix = shift @si;
+	}
+
+	return ($n, $sufix);
 }
 
 =head2 date
