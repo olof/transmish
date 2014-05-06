@@ -17,7 +17,17 @@ sub _add_torrent_common {
 	$args{download_dir} = $opts->{'download-dir'} if
 		exists $opts->{'download-dir'};
 
-	return $client->add(%args);
+	my $resp = $client->add(%args);
+
+	if (not $resp) {
+		error "Could not add torrent:", $client->error;
+		return;
+	}
+
+	$resp = $resp->{'torrent-added'};
+	infof "Added '%s' (id: %d)", @{$resp}{qw(name id)};
+
+	return $resp;
 }
 
 sub _add_torrent_file {
@@ -38,6 +48,17 @@ sub _add_torrent_uri {
 	return _add_torrent_common($client, $opts, filename => $uri);
 }
 
+sub _add_torrent {
+	my $client = shift;
+	my $opts = shift;
+	my $file = shift;
+
+	dbg 1, "Adding $file";
+
+	return _add_torrent_file($client, $opts, $file) if -e $file;
+	return _add_torrent_uri($client, $opts, $file);
+}
+
 cmd add => sub {
 	my $client = client or return;
 	my %add_args;
@@ -54,26 +75,13 @@ cmd add => sub {
 	for my $file (@_) {
 		my @files = glob($file);
 
-		# If the glob fails, we give it directly to transmission,
-		# it could be a URI or a server local file.
-		unless (@files) {
-			if (_add_torrent_uri($client, $opts, $file)) {
-				say "Added URI '$file'";
-			} else {
-				printf "Failed to add URI '%s': %s'\n",
-					$file, $client->error;
-			}
-		}
+		# Under some circumstances, namely the file/url
+		# contains shell wildcard characters, like * or more
+		# commonly ?, the glob fails to expand at all. In that
+		# case, we want to use the string verbatimelly.
+		@files = $file if not @files;
 
-		# Anything in @files is a client local file.
-		for (@files) {
-			if (_add_torrent_file($client, $opts, $_)) {
-				say "Added '$_'";
-			} else {
-				printf "Failed to add file '%s': %s\n",
-					$_, $client->error;
-			}
-		}
+		_add_torrent($client, $opts, $_) for @files;
 	}
 };
 
