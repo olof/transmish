@@ -6,6 +6,7 @@ use Getopt::Long qw(GetOptionsFromArray);
 
 use App::transmish::Command;
 use App::transmish::Client;
+use App::transmish::Config;
 use App::transmish::Out;
 use App::transmish::Utils qw(read_file);
 
@@ -25,7 +26,14 @@ sub _add_torrent_common {
 	}
 
 	$resp = $resp->{'torrent-added'};
-	infof "Added '%s' (id: %d)", @{$resp}{qw(name id)};
+	my ($name, $id) = @{$resp}{qw(name id)};
+	infof "Added '%s' (id: %d)", $name, $id;
+
+	if (config->{'force_start'}) {
+		my ($t) = $client->read_torrents(ids => [$id], lazy_read => 1);
+		$t->start;
+		dbg 1, "Start forced for $id";
+	}
 
 	return $resp;
 }

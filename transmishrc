@@ -3,6 +3,12 @@ url = http://localhost:9091/transmission/rpc
 username = username
 password = password
 
+# This is a workaround for a bug in some versions of transmission, where adding
+# a torrent via rpc does not start the torrent, regardless of whether
+# start-added-torrents is on or off.
+# See: https://trac.transmissionbt.com/ticket/5092
+force_start = 1
+
 [aliases]
 tv = add --download-dir /share/incoming/tv
 movie = add --download-dir /share/incoming/movie
