@@ -72,7 +72,7 @@ cmd add => sub {
 	my %add_args;
 
 	GetOptionsFromArray(\@_, my $opts = {}, qw(
-		download-dir=s
+		download-dir|d=s
 	)) or return;
 
 	if (not @_) {
