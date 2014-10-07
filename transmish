@@ -18,7 +18,7 @@ use App::transmish::Command;
 use App::transmish::Client;
 use App::transmish::Utils qw/read_file strrange/;
 
-use Getopt::Long qw/:config gnu_getopt/;
+use Getopt::Long qw/:config gnu_getopt require_order/;
 use Term::ReadLine;
 use Text::ParseWords;
 use MIME::Base64;
@@ -100,11 +100,14 @@ GetOptions($opts,
 	'config|c=s',
 ) or exit 1;
 
-crap "No non-interactive support yet" unless is_interactive;
-
 App::transmish::Out::dbglvl($opts->{verbose});
 App::transmish::Config::load($opts->{config});
 App::transmish::Command::load_user_aliases;
+
+# $ transmish torrent 1400 files on '.*mkv'
+exit run @ARGV if @ARGV;
+
+crap "No non-interactive support yet" unless is_interactive;
 $term = Term::ReadLine->new('transmish');
 
 my $attr = $term->Attribs;
