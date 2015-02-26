@@ -105,7 +105,7 @@ App::transmish::Config::load($opts->{config});
 App::transmish::Command::load_user_aliases;
 
 # $ transmish torrent 1400 files on '.*mkv'
-exit run @ARGV if @ARGV;
+exit ((run @ARGV) ? 0 : 1) if @ARGV;
 
 crap "No non-interactive support yet" unless is_interactive;
 $term = Term::ReadLine->new('transmish');
