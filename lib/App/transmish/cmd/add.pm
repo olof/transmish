@@ -95,22 +95,23 @@ cmd add => sub {
 
 cmd rm => sub {
 	my $client = client or return;
-	my $index = shift or do {
+
+	if (not @_) {
 		error "No id given";
 		return;
-	};
+	}
 
 	my $delete = 0;
 
 	# FIXME: do getopt on commands
 	# FIXME: you sure, dawg? [yN]
-	if($index eq '-d') {
-		$index = shift;
+	if($_[0] eq '-d') {
+		shift;
 		$delete = 1;
 	}
 
 	$client->remove(
-		ids => [$index],
+		ids => \@_,
 		delete_local_data => $delete,
 	) or error $client->error;
 };
