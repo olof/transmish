@@ -91,12 +91,12 @@ sub _valid_setting {
 }
 
 cmd torrent => sub {
-	my $client = client or return;
+	my $client = client or return 1;
 	my $index = shift;
 
 	if (not defined $index) {
 		error 'No id given';
-		return;
+		return 1;
 	};
 
 	my ($torrent) = $client->read_torrents(
@@ -125,7 +125,7 @@ cmd torrent => sub {
 	);
 	unless($torrent) {
 		error "No torrent with id $index";
-		return;
+		return 1;
 	}
 
 	unless(@_) {
