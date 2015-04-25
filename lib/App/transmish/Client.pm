@@ -42,8 +42,8 @@ sub client {
 
 	return Transmission::Client->new(
 		url => $url,
-		username => $username,
-		password => $password,
+		username => $username // '',
+		password => $password // '',
 		timeout => $timeout,
 	);
 }
