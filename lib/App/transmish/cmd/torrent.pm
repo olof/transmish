@@ -124,7 +124,11 @@ cmd torrent => sub {
 		)],
 	);
 	unless($torrent) {
-		error "No torrent with id $index";
+		if ($client->error) {
+			error $client->error;
+		} else {
+			error "No torrent with id $index";
+		}
 		return 1;
 	}
 
