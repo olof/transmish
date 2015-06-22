@@ -91,13 +91,16 @@ Various commands for listing torrents:
 
 =over
 
-=item * list [ids]
+=item * list [-1] [ids]
 
-=item * active
+=item * active [-1]
 
-=item * grep <regexp>
+=item * grep [-1] <regexp> [ids]
 
 =back
+
+The commands can all be given a -1 flag to make the output more
+compact (each torrent is written on a single line).
 
 =head2 Torrent ID specification
 
@@ -108,4 +111,3 @@ daemon.
 Commands like the list command supports listing multiple IDs,
 either as an explicit list (list 1 2 3) or using a list syntax
 (list 1-3).
-
