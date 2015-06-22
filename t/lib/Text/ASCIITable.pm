@@ -1,7 +1,6 @@
 package Text::ASCIITable;
 use warnings;
 use strict;
-use YAML;
 use Data::Dumper;
 use JSON;
 # .---------------------------------------------------------.
