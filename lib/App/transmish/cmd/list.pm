@@ -55,7 +55,15 @@ cmd active => sub {
 };
 
 cmd grep => sub {
-	my $ptrn = shift;
+	my @list_args;
+	my $ptrn;
+
+	while (@_) {
+		local $_ = shift;
+		push @list_args, $_ and next if /^-/;
+		$ptrn = $_;
+		last;
+	}
 
 	my $re;
 	eval { $re = qr/$ptrn/i };
@@ -70,7 +78,7 @@ cmd grep => sub {
 		return;
 	}
 
-	_list(sub { $_[0]->name =~ /$re/ }, [], @_);
+	_list(sub { $_[0]->name =~ /$re/ }, [], @list_args, @_);
 };
 
 =head1 NAME
