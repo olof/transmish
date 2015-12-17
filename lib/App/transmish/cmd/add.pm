@@ -134,3 +134,14 @@ the transmission host and added. Otherwise, the path is sent as is
 to transmission. This means that http URLs, magnet links and
 torrent files on the transmission host are all supported. For local
 files, glob expressions are also supported (add /tmp/*.torrent).
+
+=head1 OPTIONS
+
+=head2 add
+
+The add command accepts the following arguments:
+
+  --delete-torrentfile -D  delete torrent after successfully adding it.
+                           No-op if the added torrent isn't a file.
+  --download-dir <path>    tell transmission where to download
+                           (path to a directory on the transmission host)
