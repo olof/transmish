@@ -46,7 +46,11 @@ sub _add_torrent_file {
 	my %add_args;
 	$add_args{metainfo} = read_file($file);
 	$add_args{filename} = $file unless $add_args{metainfo};
-	return _add_torrent_common($client, $opts, %add_args);
+	my $resp = _add_torrent_common($client, $opts, %add_args);
+	if ($resp and $opts->{'delete-torrentfile'}) {
+		unlink($file) or error "Could not delete $file: $!";
+	}
+	return $resp;
 }
 
 sub _add_torrent_uri {
@@ -72,6 +76,7 @@ cmd add => sub {
 	my %add_args;
 
 	GetOptionsFromArray(\@_, my $opts = {}, qw(
+		delete-torrentfile|D
 		download-dir|d=s
 	)) or return;
 
