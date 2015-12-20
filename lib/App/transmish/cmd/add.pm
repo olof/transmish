@@ -85,6 +85,7 @@ cmd add => sub {
 		return;
 	}
 
+	my $fail;
 	for my $file (@_) {
 		my @files = glob($file);
 
@@ -94,8 +95,10 @@ cmd add => sub {
 		# case, we want to use the string verbatimelly.
 		@files = $file if not @files;
 
-		_add_torrent($client, $opts, $_) for @files;
+		$fail |= ! _add_torrent($client, $opts, $_) for @files;
 	}
+
+	return ! $fail;
 };
 
 cmd rm => sub {
