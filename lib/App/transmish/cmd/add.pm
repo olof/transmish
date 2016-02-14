@@ -71,6 +71,7 @@ sub _add_torrent {
 	return _add_torrent_uri($client, $opts, $file);
 }
 
+alias eat => 'add --delete-torrent';
 cmd add => sub {
 	my $client = client or return;
 	my %add_args;
