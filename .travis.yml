@@ -1,5 +1,8 @@
 language: perl
 perl:
- - "5.23"
+ - "dev"
  - "5.22"
  - "5.14"
+matrix:
+ allow_failure:
+  dev: true
